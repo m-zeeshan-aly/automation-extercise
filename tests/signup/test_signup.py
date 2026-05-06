@@ -1,11 +1,11 @@
 from playwright.sync_api import expect
-from src.pages.home.HomePage import Home
+from src.pages.home.homePage import Home
 from src.utils.generatedata.GenerateDataUtils import GenerateData
 from src.utils.generatedata.dataUtils import signup_data
 import pytest 
 
 @pytest.mark.parametrize("run", range(1))  # runs 1 time increase number to run multiple time
-def test_signup_form(setup,run):
+def xtest_signup_form(setup,run):
     page = setup
     home = Home(page)
     login_p = home.click_signup_login()

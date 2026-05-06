@@ -38,3 +38,9 @@ CHECKBOXS = [
     "Sign up for our newsletter!",
     "Receive special offers from our partners!"
 ]
+
+CATEGORIES = {
+    "Men"   :  ["Dress","Tops","Saree"],
+    "Women" :  ["Tshirts","Jeans"],
+    "Kids"  :  ["Dress","Tops & Shirts"]
+}

@@ -1,4 +1,4 @@
-from src.pages.login.LoginPage import Login
+from src.pages.login.loginPage import Login
 class Home:
     def __init__(self,page):
         self.page = page

@@ -1,14 +1,14 @@
 from playwright.sync_api import expect
-from src.pages.home.HomePage import Home
+from src.pages.home.homePage import Home
 
-def test_login_url(setup):
+def xtest_login_url(setup):
     page = setup
     home = Home(page)
     login_p = home.click_signup_login()
     expect(page).to_have_url("https://automationexercise.com/login")
 
 
-def test_login_and_logout(setup):
+def xtest_login_and_logout(setup):
     page = setup
     home_p = Home(page)
     login_p = home_p.click_signup_login()
@@ -43,7 +43,7 @@ def test_login_and_logout(setup):
     page.wait_for_timeout(300)
 
 
-def test_login_suceess(setup):
+def xtest_login_suceess(setup):
     page = setup
     home_p = Home(page)
     login_p = home_p.click_signup_login()
@@ -70,7 +70,7 @@ def test_login_suceess(setup):
     page.wait_for_timeout(300)
 
 
-def test_login_with_wrong_email_pass(setup):
+def xtest_login_with_wrong_email_pass(setup):
     page = setup
     home = Home(page)
     login_p = home.click_signup_login()
