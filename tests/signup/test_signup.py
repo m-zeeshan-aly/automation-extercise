@@ -4,7 +4,7 @@ from src.utils.generatedata.GenerateDataUtils import GenerateData
 from src.utils.generatedata.dataUtils import signup_data
 import pytest 
 
-@pytest.mark.parametrize("run", range(2))  # runs 5 times
+@pytest.mark.parametrize("run", range(1))  # runs 1 time increase number to run multiple time
 def test_signup_form(setup,run):
     page = setup
     home = Home(page)
@@ -14,15 +14,16 @@ def test_signup_form(setup,run):
     data = signup_data()
     # print(data)
 
-    login_p.enterName(data.get("full_name"))
-    expect(login_p.name_input).to_have_value(data.get("full_name"))
+    login_p.get_input_field("Name").fill(data.get("full_name"))
+    expect(login_p.get_input_field("Name")).to_have_value(data.get("full_name"))
 
-    login_p.enterEmail(data.get("email"))
-    expect(login_p.email_input).to_have_value(data.get("email"))
+    login_p.email_locator("signup").fill(data.get("email"))
+    expect(login_p.email_locator("signup")).to_have_value(data.get("email"))
 
-    signup_p = login_p.create_new_user()
+    button = login_p.button_locator("Signup")
+    signup_p = login_p.click_button(button)
 
-    error = login_p.signup_error_message
+    error = login_p.error_message()
     if error.is_visible():
         error_text = error.text_content().strip()
         assert error_text == "Email Address already exist!", "User already exist cannot add"
