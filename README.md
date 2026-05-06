@@ -18,10 +18,15 @@ The test suite automates the following workflows on automationexercise.com:
 1. **Home Page Navigation** (`test_home.py`)
    - Verifies the home page loads correctly
    - Validates the URL is as expected
+   - **Note**: Currently disabled (prefixed with `x`)
 
-2. **Login Page Navigation** (`test_login.py`)
-   - Tests navigation from home to login/signup page
-   - Validates the correct URL is reached
+2. **Login & Logout** (`test_login.py`)
+   - **Login Navigation**: Tests navigation from home to login/signup page
+   - **Successful Login**: Authenticates with valid credentials and verifies successful login state
+   - **Failed Login**: Tests login attempts with invalid credentials and validates error messages
+   - **Login & Logout Workflow**: Tests complete login and logout flow with state validation
+   - Validates correct URLs and UI state changes (logout button visibility, etc.)
+   - Uses parameterized locators for flexible form field selection
 
 3. **User Registration/Signup** (`test_signup.py`)
    - Creates new user accounts with randomly generated test data
@@ -33,7 +38,7 @@ The test suite automates the following workflows on automationexercise.com:
      - Newsletter opt-in preferences
    - Validates form field behavior (editable, read-only, checked states)
    - Handles existing user scenarios
-   - Runs parametrized tests to create multiple user accounts
+   - Runs parametrized tests to create user accounts (currently set to 1 iteration)
 
 ## 🏗️ Project Structure
 
@@ -154,17 +159,68 @@ The `setup` fixture handles:
 - Creating a new page and navigating to https://automationexercise.com/
 - Cleanup after test completion
 
+## 📋 Recent Changes & Architecture Updates
+
+### LoginPage Refactoring
+The LoginPage has been refactored from a class with individual methods for each form field to a more flexible, parameterized approach:
+
+**Before:**
+```python
+login_p.enterName(data.get("full_name"))
+login_p.enterEmail(data.get("email"))
+login_p.click_signup_button()
+```
+
+**After:**
+```python
+login_p.get_input_field("Name").fill(data.get("full_name"))
+login_p.email_locator("signup").fill(data.get("email"))
+button = login_p.button_locator("Signup")
+login_p.click_button(button)
+```
+
+**Benefits:**
+- More maintainable: Uses XPath patterns that can be reused
+- More flexible: Supports both login and signup flows without duplicating code
+- Better separation of concerns: Locators are defined as class constants
+- Easier to extend: New input types can be handled without adding new methods
+
+### New Login/Logout Testing
+Added comprehensive login testing including:
+- Login form validation with both valid and invalid credentials
+- Error message validation for failed login attempts
+- Complete login and logout workflow testing
+- UI state verification (logout button visibility changes)
+
 ## 🔑 Key Classes and Methods
 
 ### HomePage
 - `click_signup_login()` - Navigate to signup/login page
+- `user_name` (property) - Get the logged-in username element
+- `get_logout_button` (property) - Get the logout button element
 
-### LoginPage
-- `enterName(name)` - Enter name for signup
-- `enterEmail(email)` - Enter email for signup
-- `click_signup_button()` - Submit signup form
-- `create_new_user()` - Proceed to account details form
-- Properties: `signup_header`, `name_input`, `email_input`, `signup_error_message`
+### LoginPage (Refactored)
+**Class Constants:**
+- `EMAIL` - XPath pattern for email inputs: `"//input[@data-qa='{method}-email']"`
+- `BUTTON` - XPath pattern for buttons: `"//button[normalize-space()='{title}']"`
+- `INPUT` - XPath pattern for input fields: `"//input[@placeholder='{placeholder}']"`
+- `ERROR` - XPath pattern for error messages
+
+**Properties:**
+- `signup_header` - Get signup form header
+
+**Methods:**
+- `email_locator(method)` - Get email input locator by method (e.g., "login", "signup")
+- `button_locator(title)` - Get button locator by title (e.g., "Login", "Signup")
+- `get_input_field(placeholder)` - Get input field by placeholder text (e.g., "Password", "Name")
+- `error_message()` - Get error message locator
+- `click_button(button)` - Click button and return Signup page
+- `login(button)` - Click login button and return Home page
+- `logout(button)` - Click logout button and return Home page
+
+### AccountCreatedPage
+- `account_header` (property) - Get the "Account Created!" header element
+- `account_continue_button` (property) - Get the Continue button element
 
 ### SignupPage
 - `get_title_radio_locator(title)` - Get title radio button (Mr/Mrs)
@@ -187,17 +243,34 @@ Utility class for creating random test data:
 
 ## 📝 Test Examples
 
-### Running 2 signup registrations:
+### Running Signup Tests
 ```bash
 pytest tests/signup/test_signup.py -v
 ```
-This creates 2 different user accounts with randomly generated data and validates the entire signup process.
+This creates 1 user account with randomly generated data and validates the entire signup process.
 
-### Checking test assertions in action:
-The signup test validates:
+### Running Login Tests
+```bash
+pytest tests/login/test_login.py -v
+```
+This runs the following test scenarios:
+- **test_login_url**: Validates navigation to login page
+- **test_login_and_logout**: Tests complete login and logout workflow with error checking
+- **test_login_suceess**: Tests successful login scenario and logout button visibility
+- **test_login_with_wrong_email_pass**: Tests failed login with invalid credentials and error message validation
+
+### Running All Tests
+```bash
+pytest -v
+```
+
+### Checking Test Assertions in Action
+The test suite validates:
 - Form fields have expected values
 - Radio buttons toggle correctly
 - Dropdowns select proper options
+- Error messages display for invalid credentials
+- UI state changes correctly after login/logout
 - Checkboxes check/uncheck appropriately
 - Address fields populate correctly
 - Existing user email error handling
