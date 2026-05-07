@@ -40,7 +40,7 @@ CHECKBOXS = [
 ]
 
 CATEGORIES = {
-    "Men"   :  ["Dress","Tops","Saree"],
-    "Women" :  ["Tshirts","Jeans"],
+    "Men"   :  ["Tshirts","Jeans"],
+    "Women" :  ["Dress","Tops","Saree"],
     "Kids"  :  ["Dress","Tops & Shirts"]
 }

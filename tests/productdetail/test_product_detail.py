@@ -4,7 +4,7 @@ from src.pages.category.categoryPage import Category
 from src.pages.products.productCardPage import ProductCard
 
 
-def xtest_place_order(use_saved_login):
+def test_verify_selected_product_details(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
@@ -42,23 +42,32 @@ def xtest_place_order(use_saved_login):
     
     assert hover_price == price, "Price mismatch with card and on hover over the card"
     assert hover_description == description, "Description mismatch with card and on hover over the card"
+
+    image = product_card_p.get_image(selected_product)
+    card_image_src = image.get_attribute("src")
     
-    add_to_cart_button = product_card_p.get_add_to_cart_button(selected_product)
-    page.wait_for_timeout(1000)
-    cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
-    heading = cart_popup.get_heading
-    expect(heading).to_have_text("Added!")
+    view_product_button = product_card_p.get_view_product_button(selected_product)
     page.wait_for_timeout(1000)
 
-    cart_popup.click_continue_shoping()
-    cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
-    heading = cart_popup.get_heading
-    expect(heading).to_have_text("Added!")
-    cart_p = cart_popup.click_view_cart_button()
-    checkout_button = cart_p.get_checkout_button
+    product_detail_p = product_card_p.click_view_product(view_product_button)
 
-    expect(checkout_button).to_be_visible()
-    # checkout_button.click()
+    tab = product_detail_p.get_product_tab
+
+    expect(tab).to_have_css("color", "rgb(255, 165, 0)")
+
+    product_description_locator = product_detail_p.get_description
+    product_price_locator = product_detail_p.get_product_price
+    product_image_locator = product_detail_p.get_product_image
+
+    expect(product_description_locator).to_have_text(description)
+    expect(product_price_locator).to_have_text(price)
+
+    detail_image_src = product_image_locator.get_attribute("src")
+
+    # print("Card image src:", card_image_src)
+    # print("Detail image src:", detail_image_src)
+
+    assert card_image_src == detail_image_src, "Image Mismatch"
 
     page.wait_for_timeout(2000)
 
