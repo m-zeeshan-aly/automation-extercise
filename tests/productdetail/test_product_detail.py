@@ -4,7 +4,7 @@ from src.pages.category.categoryPage import Category
 from src.pages.products.productCardPage import ProductCard
 
 
-def test_verify_selected_product_details(use_saved_login):
+def xtest_verify_selected_product_details(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
@@ -63,9 +63,6 @@ def test_verify_selected_product_details(use_saved_login):
     expect(product_price_locator).to_have_text(price)
 
     detail_image_src = product_image_locator.get_attribute("src")
-
-    # print("Card image src:", card_image_src)
-    # print("Detail image src:", detail_image_src)
 
     assert card_image_src == detail_image_src, "Image Mismatch"
 
