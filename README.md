@@ -1,307 +1,389 @@
 # Automation Exercise - Playwright Test Suite
 
-A comprehensive browser automation test suite built with **Playwright** and **pytest** for testing user registration and login workflows on [automationexercise.com](https://automationexercise.com/).
+A browser automation test suite built with **Playwright** and **pytest** for testing ecommerce workflows on [automationexercise.com](https://automationexercise.com/). The project follows the Page Object Model pattern and covers navigation, login, signup, categories, product cards, cart behavior, checkout, payment, invoice download, and the contact-us form.
 
-## 📋 Project Overview
+> Important test naming note: pytest only discovers functions that start with `test_`. If you see a function in the code that starts with `xtest_`, that test is intentionally disabled. Remove the leading `x` so it becomes `test_...`, then run the normal pytest command and the test will be executed.
 
-This project demonstrates test automation best practices including:
-- **Page Object Model (POM)** - Organized page structure for maintainability
-- **Data Generation** - Dynamic test data creation for signup scenarios
-- **Fixture-based Setup** - Centralized browser initialization and teardown
-- **Parameterized Tests** - Running the same test with multiple data sets
-- **Assertions & Validations** - Comprehensive test assertions using Playwright expectations
+## Project Overview
 
-### What This Code Does
+This suite demonstrates:
 
-The test suite automates the following workflows on automationexercise.com:
+- Page Object Model structure across page classes in `src/pages/`
+- Dynamic signup, contact-us, and payment data generation
+- Session-based login state saved to `auth.json`
+- Category and subcategory navigation coverage
+- Product card, hover, product-detail, image, price, and description validation
+- Cart item verification, deletion, checkout prompts, and bill calculation
+- End-to-end order placement with payment and invoice download
+- Contact-us form submission with file upload and dialog handling
 
-1. **Home Page Navigation** (`test_home.py`)
-   - Verifies the home page loads correctly
-   - Validates the URL is as expected
-   - **Note**: Currently disabled (prefixed with `x`)
+## Project Structure
 
-2. **Login & Logout** (`test_login.py`)
-   - **Login Navigation**: Tests navigation from home to login/signup page
-   - **Successful Login**: Authenticates with valid credentials and verifies successful login state
-   - **Failed Login**: Tests login attempts with invalid credentials and validates error messages
-   - **Login & Logout Workflow**: Tests complete login and logout flow with state validation
-   - Validates correct URLs and UI state changes (logout button visibility, etc.)
-   - Uses parameterized locators for flexible form field selection
-
-3. **User Registration/Signup** (`test_signup.py`)
-   - Creates new user accounts with randomly generated test data
-   - Fills out complete signup forms including:
-     - Personal information (name, email, password, title)
-     - Date of birth (day, month, year)
-     - Address information (company, address, city, state, country)
-     - Contact details (phone, zip code)
-     - Newsletter opt-in preferences
-   - Validates form field behavior (editable, read-only, checked states)
-   - Handles existing user scenarios
-   - Runs parametrized tests to create user accounts (currently set to 1 iteration)
-
-## 🏗️ Project Structure
-
-```
+```text
 automationextercise/
 ├── src/
-│   ├── pages/                          # Page Object Models
+│   ├── pages/
+│   │   ├── account/
+│   │   │   └── accountCreatedPage.py
+│   │   ├── cart/
+│   │   │   ├── cartPage.py
+│   │   │   └── cartPopupPage.py
+│   │   ├── category/
+│   │   │   ├── categoryPage.py
+│   │   │   └── subCategoryPage.py
+│   │   ├── checkout/
+│   │   │   └── checkoutPage.py
+│   │   ├── contactus/
+│   │   │   └── contactUsPage.py
 │   │   ├── home/
-│   │   │   └── HomePage.py            # Home page interactions
+│   │   │   └── homePage.py
 │   │   ├── login/
-│   │   │   └── LoginPage.py           # Login/signup page interactions
+│   │   │   └── loginPage.py
+│   │   ├── ordersuccess/
+│   │   │   └── orderSuccessPage.py
+│   │   ├── payment/
+│   │   │   └── paymentPage.py
+│   │   ├── products/
+│   │   │   ├── productCardPage.py
+│   │   │   └── productDetailPage.py
 │   │   └── signup/
-│   │       └── SignupPage.py          # Account info form interactions
+│   │       └── SignupPage.py
 │   └── utils/
 │       ├── constants/
-│       │   └── constantsUtils.py      # Test data constants (countries, months, etc.)
+│       │   └── constantsUtils.py
 │       └── generatedata/
-│           ├── GenerateDataUtils.py   # Test data generation utilities
-│           └── dataUtils.py           # Data formatting and factory functions
+│           ├── dataUtils.py
+│           └── generateDataUtils.py
 ├── tests/
+│   ├── cart/
+│   │   └── test_cart.py
+│   ├── category/
+│   │   └── test_category.py
+│   ├── contactus/
+│   │   └── test_contactus.py
 │   ├── home/
-│   │   └── test_home.py               # Home page tests
+│   │   └── test_home.py
 │   ├── login/
-│   │   └── test_login.py              # Login navigation tests
-│   └── signup/
-│       └── test_signup.py             # Complete signup workflow tests
-├── conftest.py                        # pytest fixtures and setup
-├── pytest.ini                         # pytest configuration
-├── requirements.txt                   # Python dependencies
-└── README.md                          # This file
+│   │   └── test_login.py
+│   ├── placeorder/
+│   │   └── test_place_order.py
+│   ├── productcard/
+│   │   └── test_product_card.py
+│   ├── productdetail/
+│   │   └── test_product_detail.py
+│   ├── signup/
+│   │   └── test_signup.py
+│   └── subcategory/
+│       └── test_subcategory.py
+├── testdata/
+│   └── upload_file.jpg
+├── downloads/
+│   └── invoice.pdf
+├── auth.json
+├── conftest.py
+├── pytest.ini
+├── requirements.txt
+└── README.md
 ```
 
-## 🛠️ Setup Instructions
+## Setup
 
 ### Prerequisites
+
 - Python 3.8 or higher
-- pip (Python package manager)
+- pip
+- Chromium browser installed through Playwright
 
 ### Installation
 
-1. **Clone or navigate to the project directory:**
-   ```bash
-   cd automationextercise
-   ```
+```bash
+cd automationextercise
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+playwright install chromium
+```
 
-2. **Create a virtual environment (recommended):**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+On Windows, activate the virtual environment with:
 
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+.venv\Scripts\activate
+```
 
-4. **Install Playwright browsers:**
-   ```bash
-   playwright install chromium
-   ```
+## Running Tests
 
-## 🚀 Running Tests
+The default pytest configuration runs Chromium in headed mode with a 500ms slow motion delay and prints output with `-s`.
 
-### Run All Tests
+Run all discovered tests:
+
 ```bash
 pytest
 ```
 
-### Run Specific Test File
+Run one test file:
+
 ```bash
-pytest tests/signup/test_signup.py
+pytest tests/cart/test_cart.py -v
 ```
 
-### Run Specific Test
+Run one test:
+
 ```bash
-pytest tests/home/test_home.py::test_home_navigation
+pytest tests/cart/test_cart.py::test_verify_product_added_to_cart -v
 ```
 
-### Run with Verbose Output
-```bash
-pytest -v
-```
+Run by marker:
 
-### Run in Headed Mode (with visible browser)
-The default configuration already runs in headed mode with a 500ms slowdown between actions for debugging visibility.
-
-### Run with Markers
 ```bash
-# Run only smoke tests
 pytest -m smoke
-
-# Run regression tests
 pytest -m regression
+pytest -m sanity
 ```
 
-## 📦 Dependencies
+## Configuration
 
-| Package | Purpose |
-|---------|---------|
-| `playwright` | Browser automation library |
-| `pytest` | Test framework |
-| `pytest-playwright` | Playwright pytest plugin |
+`pytest.ini` configures:
 
-See [requirements.txt](requirements.txt) for complete dependency list.
+- `addopts = --headed --browser chromium --slowmo 500 -s`
+- test discovery under the `tests/` directory
+- test files matching `test_*.py`
+- test functions matching `test_*`
+- markers: `smoke`, `regression`, and `sanity`
 
-## 🔧 Configuration
+## Fixtures
 
-### pytest.ini Settings
-- **Headed Mode**: Tests run with visible browser window
-- **Browser**: Chromium (configurable in pytest.ini)
-- **Slowmo**: 500ms delay between actions (for debugging)
-- **Test Discovery**: Looks for `test_*.py` files with `test_*` functions
+`conftest.py` provides three fixtures:
 
-### conftest.py Fixture
-The `setup` fixture handles:
-- Launching Chromium browser in headless=False mode
-- Creating a browser context
-- Creating a new page and navigating to https://automationexercise.com/
-- Cleanup after test completion
+- `setup`: launches Chromium, creates a new context/page, opens `https://automationexercise.com/`, and closes the browser after the test.
+- `save_login_state`: logs in with the configured test account and saves browser storage state to `auth.json`.
+- `use_saved_login`: creates a browser context from `auth.json`, opens the home page, and gives tests an already-authenticated page.
 
-## 📋 Recent Changes & Architecture Updates
+Tests that require a logged-in user use `use_saved_login`. Public flows such as signup, login failure, contact-us, and checkout login prompts can use `setup`.
 
-### LoginPage Refactoring
-The LoginPage has been refactored from a class with individual methods for each form field to a more flexible, parameterized approach:
+## Test Coverage
 
-**Before:**
+### Home
+
+File: `tests/home/test_home.py`
+
+- `test_home_navigation`: verifies the home page URL.
+
+### Login
+
+File: `tests/login/test_login.py`
+
+- `test_login_url`: navigates from home to the login/signup page.
+- `test_login_and_logout`: logs in with valid credentials, verifies logout visibility, then logs out.
+- `test_login_suceess`: verifies successful login state.
+- `test_login_with_wrong_email_pass`: verifies the invalid-login error message.
+
+### Signup
+
+File: `tests/signup/test_signup.py`
+
+- `test_signup_form`: creates a new user with generated data, fills account details, validates fields/dropdowns/checkboxes, and verifies the account-created page.
+
+Signup data comes from `signup_data()` in `src/utils/generatedata/dataUtils.py`.
+
+### Category
+
+File: `tests/category/test_category.py`
+
+- `test_click_category`: parameterized over all configured categories and verifies that subcategories become visible after clicking the parent category.
+
+Category data comes from `CATEGORIES` in `src/utils/constants/constantsUtils.py`:
+
 ```python
-login_p.enterName(data.get("full_name"))
-login_p.enterEmail(data.get("email"))
-login_p.click_signup_button()
+CATEGORIES = {
+    "Men": ["Tshirts", "Jeans"],
+    "Women": ["Dress", "Tops", "Saree"],
+    "Kids": ["Dress", "Tops & Shirts"],
+}
 ```
 
-**After:**
-```python
-login_p.get_input_field("Name").fill(data.get("full_name"))
-login_p.email_locator("signup").fill(data.get("email"))
-button = login_p.button_locator("Signup")
-login_p.click_button(button)
-```
+### Subcategory
 
-**Benefits:**
-- More maintainable: Uses XPath patterns that can be reused
-- More flexible: Supports both login and signup flows without duplicating code
-- Better separation of concerns: Locators are defined as class constants
-- Easier to extend: New input types can be handled without adding new methods
+File: `tests/subcategory/test_subcategory.py`
 
-### New Login/Logout Testing
-Added comprehensive login testing including:
-- Login form validation with both valid and invalid credentials
-- Error message validation for failed login attempts
-- Complete login and logout workflow testing
-- UI state verification (logout button visibility changes)
+- `test_click_subcategory_for_navigation`: parameterized over every category/subcategory pair and validates the target product-listing heading.
 
-## 🔑 Key Classes and Methods
+### Product Cards
 
-### HomePage
-- `click_signup_login()` - Navigate to signup/login page
-- `user_name` (property) - Get the logged-in username element
-- `get_logout_button` (property) - Get the logout button element
+File: `tests/productcard/test_product_card.py`
 
-### LoginPage (Refactored)
-**Class Constants:**
-- `EMAIL` - XPath pattern for email inputs: `"//input[@data-qa='{method}-email']"`
-- `BUTTON` - XPath pattern for buttons: `"//button[normalize-space()='{title}']"`
-- `INPUT` - XPath pattern for input fields: `"//input[@placeholder='{placeholder}']"`
-- `ERROR` - XPath pattern for error messages
+- `test_product_card_hover`: checks that product price and description match between the card and hover overlay.
+- `test_product_card_view_product_button_navigation`: clicks "View Product" and verifies product-page navigation styling.
+- `test_product_card_add_to_cart_button`: adds a product to cart, uses the add-to-cart popup, and verifies cart navigation.
 
-**Properties:**
-- `signup_header` - Get signup form header
+Product selection is random through `ProductCard.select_product()`.
 
-**Methods:**
-- `email_locator(method)` - Get email input locator by method (e.g., "login", "signup")
-- `button_locator(title)` - Get button locator by title (e.g., "Login", "Signup")
-- `get_input_field(placeholder)` - Get input field by placeholder text (e.g., "Password", "Name")
-- `error_message()` - Get error message locator
-- `click_button(button)` - Click button and return Signup page
-- `login(button)` - Click login button and return Home page
-- `logout(button)` - Click logout button and return Home page
+### Product Detail
 
-### AccountCreatedPage
-- `account_header` (property) - Get the "Account Created!" header element
-- `account_continue_button` (property) - Get the Continue button element
+File: `tests/productdetail/test_product_detail.py`
 
-### SignupPage
-- `get_title_radio_locator(title)` - Get title radio button (Mr/Mrs)
-- `get_input_field(name)` - Get form input field by ID
-- `get_dropdown(title)` - Get dropdown by ID
-- `get_checkbox_locator(text)` - Get checkbox by label text
-- `signup()` - Submit account creation form
-- Property: `signup_header`
+- `test_verify_selected_product_details`: validates that product description, price, and image source match between the product card and product detail page.
 
-### GenerateData
-Utility class for creating random test data:
-- `fullName()`, `firstName()`, `lastName()`
-- `email()` - Unique test email
-- `phone()` - Random phone number
-- `day()`, `month()`, `year()` - Random date components
-- `country()`, `city()`, `state()`, `address()`
-- `company()`, `zip_code()`
-- `title()` - Random title (Mr/Mrs)
-- `checkboxes()` - Random checkbox selections
+### Cart
 
-## 📝 Test Examples
+File: `tests/cart/test_cart.py`
 
-### Running Signup Tests
-```bash
-pytest tests/signup/test_signup.py -v
-```
-This creates 1 user account with randomly generated data and validates the entire signup process.
+- `test_verify_product_added_to_cart`: adds a product twice, verifies cart item name, price, total, image, bill calculation, and checkout visibility.
+- `test_verify_product_deleted_from_cart`: adds a product, deletes it from cart, reloads, and verifies the item count decreases.
+- `test_ask_for_login`: adds a product without being logged in, attempts checkout, verifies the checkout popup, continues on cart, then follows the register/login link.
 
-### Running Login Tests
-```bash
-pytest tests/login/test_login.py -v
-```
-This runs the following test scenarios:
-- **test_login_url**: Validates navigation to login page
-- **test_login_and_logout**: Tests complete login and logout workflow with error checking
-- **test_login_suceess**: Tests successful login scenario and logout button visibility
-- **test_login_with_wrong_email_pass**: Tests failed login with invalid credentials and error message validation
+### Contact Us
 
-### Running All Tests
-```bash
-pytest -v
-```
+File: `tests/contactus/test_contactus.py`
 
-### Checking Test Assertions in Action
-The test suite validates:
-- Form fields have expected values
-- Radio buttons toggle correctly
-- Dropdowns select proper options
-- Error messages display for invalid credentials
-- UI state changes correctly after login/logout
-- Checkboxes check/uncheck appropriately
-- Address fields populate correctly
-- Existing user email error handling
+- `test_contactus_form`: parameterized for two submissions, opens Contact Us, fills generated name/email/subject/message data, uploads `testdata/upload_file.jpg`, accepts the confirmation dialog, verifies the success message, and returns home.
 
-## 🐛 Debugging
+Contact-us subjects and messages are stored in `CONTACT_SUBJECTS` and `CONTACT_MESSAGES`. Runtime form data is produced by `get_contact_us_data()`.
 
-- Tests run with **500ms slowdown** between actions for visual debugging
-- Browser runs **headless=False** so you can see interactions
-- Use `-v` flag for verbose output
-- Check terminal output with `-s` flag (enabled in pytest.ini)
+### Place Order
 
-## 📊 Test Coverage
+File: `tests/placeorder/test_place_order.py`
 
-Current test coverage includes:
-- ✅ Home page load validation
-- ✅ Navigation to login/signup
-- ✅ New user signup form filling
-- ✅ Form field validation
-- ✅ Date picker selection
-- ✅ Dropdown selection
-- ✅ Checkbox selection
-- ✅ Duplicate email handling
-- ✅ Multi-run parametrized testing
+- `test_place_order_and_clicks_continue_button`: completes category navigation, product selection, cart validation, checkout, generated payment data entry, order success validation, continue button navigation, and empty-cart validation.
+- `test_place_order_and_clicks_download_invoice_button`: completes the order flow, clicks "Download Invoice", saves the file to `downloads/invoice.pdf`, and verifies that the downloaded PDF exists and is not empty.
 
-## 🔄 Continuous Integration Ready
+Payment data is generated by `GenerateData.get_payment_data()`.
 
-The pytest.ini includes configurations suitable for CI/CD pipelines with markers for:
-- `@pytest.mark.smoke` - Quick sanity checks
-- `@pytest.mark.regression` - Full test suite
-- `@pytest.mark.sanity` - Basic health checks
+## Page Objects
 
-## 📄 License
+### Home
 
-This is a learning/training automation project for testing purposes.
+`src/pages/home/homePage.py`
+
+- Opens signup/login through `click_signup_login()`
+- Exposes logged-in user and logout button locators
+- Exposes cart, products, and contact-us buttons
+- Navigates to cart with `click_cart_button()`
+- Navigates to Contact Us with `click_contact_us_button()`
+
+### Login and Signup
+
+`src/pages/login/loginPage.py`
+
+- Provides reusable locators for login/signup email fields, buttons, inputs, and error messages
+- Navigates into signup with `click_button()`
+- Logs in and logs out through page-object methods
+
+`src/pages/signup/SignupPage.py`
+
+- Handles title radio buttons, account/address inputs, dropdowns, checkboxes, and Create Account submission
+
+`src/pages/account/accountCreatedPage.py`
+
+- Verifies the account-created header and exposes the Continue button
+
+### Category and Products
+
+`src/pages/category/categoryPage.py`
+
+- Locates categories and subcategories by visible text
+- Clicks a subcategory and returns `SubCategory`
+
+`src/pages/category/subCategoryPage.py`
+
+- Exposes the product-listing heading for category/subcategory assertions
+
+`src/pages/products/productCardPage.py`
+
+- Selects random products
+- Reads card price, description, image, hover price, and hover description
+- Opens product detail pages
+- Adds products to cart and returns `CartPopup`
+
+`src/pages/products/productDetailPage.py`
+
+- Exposes product tab, product heading, price, add-to-cart button, and product image
+
+### Cart, Checkout, Payment, and Success
+
+`src/pages/cart/cartPopupPage.py`
+
+- Verifies the "Added!" popup
+- Continues shopping
+- Opens cart
+- Handles unauthenticated checkout popup actions: "Continue On Cart" and "Register / Login"
+
+`src/pages/cart/cartPage.py`
+
+- Reads cart items, names, categories, prices, quantities, totals, images, and delete buttons
+- Calculates the cart bill
+- Opens checkout
+- Exposes empty-cart and checkout-button locators
+
+`src/pages/checkout/checkoutPage.py`
+
+- Reads checkout items, totals, image sources, displayed bill, and calculated bill
+- Handles order message text area
+- Extracts billing and delivery address lines
+- Clicks Place Order and returns `Payment`
+
+`src/pages/payment/paymentPage.py`
+
+- Exposes payment heading and submit button
+- Locates payment inputs by field name: `name_on_card`, `card_number`, `cvc`, `expiry_month`, and `expiry_year`
+- Submits payment and returns `OrderSuccess`
+
+`src/pages/ordersuccess/orderSuccessPage.py`
+
+- Verifies the order confirmation message
+- Locates buttons by label, including "Continue" and "Download Invoice"
+- Returns home after clicking Continue
+
+### Contact Us
+
+`src/pages/contactus/contactUsPage.py`
+
+- Exposes the Contact Us heading and success message
+- Locates inputs by name: `name`, `email`, `subject`, `upload_file`, and `submit`
+- Exposes the message textarea
+- Returns home after successful submission
+
+## Data Utilities
+
+`src/utils/generatedata/generateDataUtils.py` contains the `GenerateData` class for:
+
+- first name, last name, and full name
+- unique email
+- phone number
+- title
+- date of birth values
+- country
+- company, address, city, state, and zip code
+- checkbox selection
+- card number, CVC, expiry month/year, and name on card
+
+`src/utils/generatedata/dataUtils.py` provides:
+
+- `signup_data()`: full signup data dictionary
+- `get_contact_us_data()`: contact-us name, email, subject, and message dictionary
+- `print_formatted_data()`: helper for readable generated-data output
+
+`src/utils/constants/constantsUtils.py` stores:
+
+- countries
+- months
+- titles
+- checkbox labels
+- categories/subcategories
+- contact-us subject pool
+- contact-us message pool
+
+## Recent Code Updates Reflected Here
+
+- Added Contact Us page object and tests with generated contact data, file upload, dialog handling, and success validation.
+- Added product and contact-us navigation helpers to the Home page object.
+- Added unauthenticated checkout popup handling in the CartPopup page object.
+- Added cart delete-button support and cart deletion verification.
+- Added generated payment data for order placement flows.
+- Updated generated-data imports to use `generateDataUtils.py`.
+- Updated the order invoice flow so `downloads/invoice.pdf` is saved and verified.
+
+## Notes
+
+- Tests hit the live `automationexercise.com` website, so failures can happen if the site changes, responds slowly, or test account/cart state changes.
+- Some tests use random product or data selection. Re-run a failed test before assuming the application behavior changed.
+- The order and cart tests use an authenticated session through `auth.json`; refresh that file by allowing `save_login_state` to run if the stored session expires.

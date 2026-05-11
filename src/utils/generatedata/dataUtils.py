@@ -1,4 +1,6 @@
-from src.utils.generatedata.GenerateDataUtils import GenerateData
+from src.utils.generatedata.generateDataUtils import GenerateData
+import random
+from src.utils.constants.constantsUtils import CONTACT_SUBJECTS, CONTACT_MESSAGES
 
 
 def print_formatted_data(full_name, first_name, last_name, email, phone,title,country,month,day,year,company,address,city,state,zip_code,checkboxes:list):
@@ -45,4 +47,20 @@ def signup_data():
         "state": new_data.state(),
         "zip_code": new_data.zip_code(),
         "checkboxes": new_data.checkboxes()
+    }
+
+
+
+def get_contact_us_data():
+    new_data = GenerateData()
+    name = new_data.fullName()
+    email = new_data.email()
+    subject = random.choice(CONTACT_SUBJECTS)
+    message = random.choice(CONTACT_MESSAGES)
+
+    return {
+        "name": name,
+        "email":email,
+        "subject":subject,
+        "message":message,
     }
