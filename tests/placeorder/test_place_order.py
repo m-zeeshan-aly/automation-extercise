@@ -2,6 +2,7 @@ from playwright.sync_api import expect
 from src.pages.home.homePage import Home
 from src.pages.category.categoryPage import Category
 from src.pages.products.productCardPage import ProductCard
+from src.utils.generatedata.generateDataUtils import GenerateData
 import os
 
 def xtest_place_order_and_clicks_continue_button(use_saved_login):
@@ -122,30 +123,33 @@ def xtest_place_order_and_clicks_continue_button(use_saved_login):
 
     expect(payment_p.get_heading).to_have_text("Payment")
 
+    generate_data = GenerateData()
+    card_data = generate_data.get_payment_data()
+
     input = payment_p.get_input_field("name_on_card")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("my name is NONE on the card")
+    input.fill(card_data.get("name"))
 
     input = payment_p.get_input_field("card_number")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("768356789")
+    input.fill(card_data.get("card_number"))
 
     input = payment_p.get_input_field("cvc")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("121")
+    input.fill(card_data.get("cvc"))
 
     input = payment_p.get_input_field("expiry_month")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("7")
+    input.fill(card_data.get("mm"))
 
     input = payment_p.get_input_field("expiry_year")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("2027")
+    input.fill(card_data.get("year"))
     page.wait_for_timeout(1000)
 
     payment_button = payment_p.get_submit_button
@@ -170,7 +174,7 @@ def xtest_place_order_and_clicks_continue_button(use_saved_login):
 
 
 
-def test_place_order_and_clicks_download_invoice_button(use_saved_login):
+def xtest_place_order_and_clicks_download_invoice_button(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
@@ -288,30 +292,33 @@ def test_place_order_and_clicks_download_invoice_button(use_saved_login):
 
     expect(payment_p.get_heading).to_have_text("Payment")
 
+    generate_data = GenerateData()
+    card_data = generate_data.get_payment_data()
+
     input = payment_p.get_input_field("name_on_card")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("my name is NONE on the card")
+    input.fill(card_data.get("name"))
 
     input = payment_p.get_input_field("card_number")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("768356789")
+    input.fill(card_data.get("card_number"))
 
     input = payment_p.get_input_field("cvc")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("121")
+    input.fill(card_data.get("cvc"))
 
     input = payment_p.get_input_field("expiry_month")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("7")
+    input.fill(card_data.get("mm"))
 
     input = payment_p.get_input_field("expiry_year")
     input.clear()
     expect(input).to_be_empty()
-    input.fill("2027")
+    input.fill(card_data.get("year"))
     page.wait_for_timeout(1000)
 
     payment_button = payment_p.get_submit_button

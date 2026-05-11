@@ -13,6 +13,8 @@ class Cart:
         self._p_total = "xpath=.//td[@class='cart_total']//p"
         self._p_image_src = "xpath=.//td[@class='cart_product']//img"
 
+        self._p_delete_button = "xpath=.//td[@class='cart_delete']//a"
+
     def click_checkout_button(self):
         self._checkout_button.click()
         return Checkout(self.page)
@@ -44,6 +46,9 @@ class Cart:
     
     def get_product_image_src(self,product):
         return product.locator(self._p_image_src)
+    
+    def get_delete_button(self,product):
+        return product.locator(self._p_delete_button)
     
     def get_bill(self):
         cart_items = self.get_all_cart_items()

@@ -1,6 +1,6 @@
 from playwright.sync_api import expect
 from src.pages.home.homePage import Home
-from src.utils.generatedata.GenerateDataUtils import GenerateData
+# from src.utils.generatedata.generateDataUtils import GenerateData
 from src.utils.generatedata.dataUtils import signup_data
 import pytest 
 

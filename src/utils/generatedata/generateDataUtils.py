@@ -2,7 +2,7 @@ import random
 import string
 import uuid
 from datetime import datetime
-from src.utils.constants.constantsUtils import COUNTRIES, MONTHS, TITLES, CHECKBOXS
+from src.utils.constants.constantsUtils import COUNTRIES, MONTHS, TITLES, CHECKBOXS, CONTACT_SUBJECTS, CONTACT_MESSAGES
 
 class GenerateData:
     def __init__(self):
@@ -18,7 +18,6 @@ class GenerateData:
     def lastName(self):
         return self.last_name
 
-
     def fullName(self):
         return f"{self.firstName()} {self.lastName()}"
 
@@ -27,6 +26,9 @@ class GenerateData:
 
     def phone(self):
         return "03" + ''.join(random.choices(string.digits, k=9))
+    
+    def card_number(self):
+        return ''.join(random.choices(string.digits, k=13))
     
     def day(self):
         return str(random.randint(1, 31))
@@ -46,6 +48,9 @@ class GenerateData:
     
     def zip_code(self):
         return ''.join(random.choices(string.digits, k=random.randint(5, 8)))
+    
+    def cvc_expiry(self):
+        return ''.join(random.choices(string.digits, k=3))
    
     def checkboxes(self):
         return random.sample(CHECKBOXS, k=random.randint(0, len(CHECKBOXS)))
@@ -92,5 +97,22 @@ class GenerateData:
             c2 = ''.join(random.choices(string.ascii_letters, k=4)).capitalize()
             c3 = ''.join(random.choices(string.ascii_letters, k=6)).capitalize()
             return f"{c2} {c3}"
+        
+    def get_payment_data(self):
+        mm = self.month()
+        cvc = self.cvc_expiry()
+        year = self.year()
+        card_number = self.card_number()
+        name = self.fullName()
+
+        return {
+            "mm":mm,
+            "cvc":cvc,
+            "year":year,
+            "card_number":card_number,
+            "name": name
+        }
+    
+
         
     
