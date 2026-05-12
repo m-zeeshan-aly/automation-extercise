@@ -5,7 +5,7 @@ from src.utils.constants.constantsUtils import CONTACT_SUBJECTS, CONTACT_MESSAGE
 
 def print_formatted_data(full_name, first_name, last_name, email, phone,title,country,month,day,year,company,address,city,state,zip_code,checkboxes:list):
     print("\n" + "="*40)
-    print("      GENERATED TEST DATA")
+    print("      GENERATED test DATA")
     print("="*40)
     print(f"Full Name   : {full_name}")
     print(f"First Name  : {first_name}")

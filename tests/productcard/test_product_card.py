@@ -149,7 +149,7 @@ def xtest_product_card_add_to_cart_button(use_saved_login):
     expect(heading).to_have_text("Added!")
     page.wait_for_timeout(1000)
 
-    cart_popup.click_continue_shoping()
+    cart_popup.click_continue_shopping()
     cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
     heading = cart_popup.get_heading
     expect(heading).to_have_text("Added!")

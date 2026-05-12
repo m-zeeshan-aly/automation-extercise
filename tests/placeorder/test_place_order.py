@@ -57,7 +57,7 @@ def xtest_place_order_and_clicks_continue_button(use_saved_login):
     expect(heading).to_have_text("Added!")
     page.wait_for_timeout(1000)
 
-    cart_popup.click_continue_shoping()
+    cart_popup.click_continue_shopping()
     cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
     heading = cart_popup.get_heading
     expect(heading).to_have_text("Added!")
@@ -98,7 +98,7 @@ def xtest_place_order_and_clicks_continue_button(use_saved_login):
 
     expect(checkout_p.get_heading).to_be_visible()
 
-    place_order_button = checkout_p.get_palce_order_button
+    place_order_button = checkout_p.get_place_order_button
 
     expect(place_order_button).to_be_visible()
 
@@ -119,7 +119,7 @@ def xtest_place_order_and_clicks_continue_button(use_saved_login):
 
 
     page.wait_for_timeout(1000)
-    payment_p = checkout_p.click_palce_order_button()
+    payment_p = checkout_p.click_place_order_button()
 
     expect(payment_p.get_heading).to_have_text("Payment")
 
@@ -226,7 +226,7 @@ def xtest_place_order_and_clicks_download_invoice_button(use_saved_login):
     expect(heading).to_have_text("Added!")
     page.wait_for_timeout(1000)
 
-    cart_popup.click_continue_shoping()
+    cart_popup.click_continue_shopping()
     cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
     heading = cart_popup.get_heading
     expect(heading).to_have_text("Added!")
@@ -267,7 +267,7 @@ def xtest_place_order_and_clicks_download_invoice_button(use_saved_login):
 
     expect(checkout_p.get_heading).to_be_visible()
 
-    place_order_button = checkout_p.get_palce_order_button
+    place_order_button = checkout_p.get_place_order_button
 
     expect(place_order_button).to_be_visible()
 
@@ -288,7 +288,7 @@ def xtest_place_order_and_clicks_download_invoice_button(use_saved_login):
 
 
     page.wait_for_timeout(1000)
-    payment_p = checkout_p.click_palce_order_button()
+    payment_p = checkout_p.click_place_order_button()
 
     expect(payment_p.get_heading).to_have_text("Payment")
 

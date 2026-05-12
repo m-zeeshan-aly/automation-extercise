@@ -95,3 +95,15 @@ CONTACT_MESSAGES = [
     
     "Please update my shipping address before dispatching the order."
 ]
+
+
+BRANDS = [
+    "Polo",
+    "H&M",
+    "Madame",
+    "Mast & Harbour",
+    "Babyhug",
+    "Allen Solly Junior",
+    "Kookie Kids",
+    "Biba"
+]

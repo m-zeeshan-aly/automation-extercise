@@ -3,4 +3,6 @@ __pycache__/
 *.pyc
 test-results/
 playwright-report/
-.envpip
+.env
+auth.json          
+downloads/

@@ -63,7 +63,7 @@ def xtest_verify_product_added_to_cart(use_saved_login):
     expect(heading).to_have_text("Added!")
     page.wait_for_timeout(1000)
 
-    cart_popup.click_continue_shoping()
+    cart_popup.click_continue_shopping()
     cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
     heading = cart_popup.get_heading
     expect(heading).to_have_text("Added!")
@@ -109,7 +109,7 @@ def xtest_verify_product_added_to_cart(use_saved_login):
 
 
 #completed
-def xtest_verify_product_deleted_from_cart(use_saved_login):
+def test_verify_product_deleted_from_cart(use_saved_login):
     """
     This test ensure the followings when a prodct is added to to cart
     The image of the product must along with name and price
@@ -166,7 +166,7 @@ def xtest_verify_product_deleted_from_cart(use_saved_login):
     expect(heading).to_have_text("Added!")
     page.wait_for_timeout(1000)
 
-    cart_popup.click_continue_shoping()
+    cart_popup.click_continue_shopping()
     cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
     heading = cart_popup.get_heading
     expect(heading).to_have_text("Added!")
@@ -261,7 +261,7 @@ def xtest_ask_for_login(setup):
     expect(heading).to_have_text("Added!")
     page.wait_for_timeout(1000)
 
-    cart_popup.click_continue_shoping()
+    cart_popup.click_continue_shopping()
     cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
     heading = cart_popup.get_heading
     expect(heading).to_have_text("Added!")
@@ -302,14 +302,14 @@ def xtest_ask_for_login(setup):
 
     checkout_p = cart_p.click_checkout_button()
 
-    expect(cart_popup.get_cehckout_heading).to_be_visible()
+    expect(cart_popup.get_checkout_heading).to_be_visible()
     page.wait_for_timeout(1000)
     cart_popup.click_continue_on_cart()
     page.wait_for_timeout(1000)
 
     checkout_p = cart_p.click_checkout_button()
 
-    expect(cart_popup.get_cehckout_heading).to_be_visible()
+    expect(cart_popup.get_checkout_heading).to_be_visible()
     page.wait_for_timeout(1000)
     login_p = cart_popup.click_login_signup_button()
 

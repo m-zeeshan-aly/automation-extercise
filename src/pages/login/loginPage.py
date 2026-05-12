@@ -1,4 +1,4 @@
-from src.pages.signup.SignupPage import Signup
+from src.pages.signup.signupPage import Signup
 # from src.pages.home.HomePage import Home
 class Login:
     EMAIL = "//input[@data-qa='{method}-email']"

@@ -16,10 +16,10 @@ class CartPopup:
         return self._heading
     
     @property
-    def get_cehckout_heading(self):
+    def get_checkout_heading(self):
         return self._checkout_heading
     
-    def click_continue_shoping(self):
+    def click_continue_shopping(self):
         self._continue_button.click()
         return self
     

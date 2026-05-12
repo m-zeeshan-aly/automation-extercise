@@ -37,13 +37,13 @@ class Checkout:
         return self._checkout_table.locator(self._bill)
     
     @property
-    def get_palce_order_button(self):
+    def get_place_order_button(self):
         return self._place_order_button
     
     def get_text_area(self):
         return self._text_area
     
-    def click_palce_order_button(self):
+    def click_place_order_button(self):
         self._place_order_button.click()
         return Payment(self.page)
     
@@ -91,7 +91,7 @@ class Checkout:
         number_of_fields = self._delivery_address.count()
         items = []
         for i in range(1,number_of_fields):
-            item = self._billing_address.nth(i)
+            item = self._delivery_address.nth(i)
             items.append(item.inner_text().strip())
         return items
     
