@@ -8,7 +8,7 @@ def xtest_verify_selected_product_details(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
-    logout_button = home_p.get_logout_button
+    logout_button = home_p.get_button("Logout")
     expect(logout_button).to_be_visible()
 
     category_p = Category(page)

@@ -1,6 +1,8 @@
 import pytest
-from playwright.sync_api import Playwright,expect
+from playwright.sync_api import Playwright
 from src.pages.login.loginPage import Login
+from src.utils.constants.constantsUtils import EMAIL, PASSWORD
+from src.pages.cart.cartPage import Cart
 
 @pytest.fixture(scope="function")
 def setup(playwright:Playwright):
@@ -84,8 +86,8 @@ def _login_session(playwright: Playwright):
     page.goto("https://automationexercise.com/login")
  
     login_p = Login(page)
-    login_p.email_locator("login").fill("dummybaba@gmail.com")
-    login_p.get_input_field("Password").fill("pakistan123")
+    login_p.email_locator("login").fill(EMAIL)
+    login_p.get_input_field("Password").fill(PASSWORD)
     login_p.button_locator("Login").click()
  
     # Persist login cookies/storage to disk
@@ -138,13 +140,43 @@ def use_saved_login(playwright: Playwright, _login_session):
         browser.close()
  
 
-# not completed yet
-@pytest.fixture(autouse=False)
-def clean_cart(use_saved_login):
-    """Empties the cart before and after cart-dependent tests."""
-    page = use_saved_login
-    page.goto("https://automationexercise.com/view_cart")
-    # delete all items...
-    yield
-    page.goto("https://automationexercise.com/view_cart")
-    # delete all items again (cleanup)
+
+
+
+# @pytest.fixture()
+# def clean_cart(use_saved_login):
+#     """
+#     Ensures the cart is empty before AND after each cart test.
+#     Guarantees full test isolation — no leftover items from previous runs.
+
+#     Usage:
+#         def test_something(use_saved_login, clean_cart):
+#             page = use_saved_login
+#             ...
+#     """
+#     def _empty_cart(page):
+#         page.goto("https://automationexercise.com/view_cart")
+#         cart = Cart(page)
+
+#         # If cart is already showing the empty message, nothing to do
+#         if cart.get_cart_empty.is_visible():
+#             return
+
+#         items = cart.get_all_cart_items()
+#         count = items.count()
+
+#         for i in range(count):
+#             # Always delete the FIRST remaining row — after each deletion
+#             # the table re-renders, so nth(0) is always the next live item
+#             first_item = cart.get_all_cart_items().nth(0)
+#             cart.get_delete_button(first_item).click()
+#             page.wait_for_timeout(300)  # let the row animate out
+
+#         # Final guard — confirm the empty state is now visible
+#         cart.get_cart_empty.wait_for(state="visible", timeout=5000)
+
+#     page = use_saved_login
+
+#     _empty_cart(page)   # ── setup: clear before test
+#     yield
+#     _empty_cart(page)   # ── teardown: clear after test

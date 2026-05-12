@@ -9,7 +9,7 @@ def xtest_place_order_and_clicks_continue_button(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
-    logout_button = home_p.get_logout_button
+    logout_button = home_p.get_button("Logout")
     expect(logout_button).to_be_visible()
 
     category_p = Category(page)
@@ -163,7 +163,8 @@ def xtest_place_order_and_clicks_continue_button(use_saved_login):
     
     button = order_success_p.get_button("Continue")
     home_p = order_success_p.click_continue_button(button)
-    button = home_p.get_cart_button
+    # button = home_p.get_cart_button
+    button = home_p.get_nav_link("view_cart")
     expect(button).to_be_visible()
     page.wait_for_timeout(1000)
 
@@ -178,7 +179,7 @@ def xtest_place_order_and_clicks_download_invoice_button(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
-    logout_button = home_p.get_logout_button
+    logout_button = home_p.get_button("Logout")
     expect(logout_button).to_be_visible()
 
     category_p = Category(page)

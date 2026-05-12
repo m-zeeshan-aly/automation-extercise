@@ -13,8 +13,9 @@ def xtest_contactus_form(setup,run):
     page= setup
     home_p = Home(page)
 
-    contact_us_button = home_p.get_contact_us_button
-    expect(home_p.get_contact_us_button).to_be_visible()
+    # # contact_us_button = home_p.get_contact_us_button
+    # contact_us_button = home_p.get_nav_link("contact_us")
+    expect(home_p.get_nav_link("contact_us")).to_be_visible()
 
     contactus_p = home_p.click_contact_us_button()
     expect(contactus_p.get_heading).to_be_visible()

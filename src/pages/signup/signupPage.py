@@ -14,7 +14,11 @@ class Signup:
     @property
     def signup_header(self):
         return self._signup_header
-
+    
+    @property
+    def get_signup_button(self):
+        return self._signup_button
+    
     def get_title_radio_locator(self, title):
         """
         This give the radio button locator of the specific title Mr or Mrs
@@ -39,8 +43,3 @@ class Signup:
         This gives the checkbox input locator of the specific id newsletter or optin
         """
         return self.page.locator(self.CHECKBOX.format(text=text))
-
-
-    def signup(self):
-        self._signup_button.click()
-        return AccountCreated(self.page)

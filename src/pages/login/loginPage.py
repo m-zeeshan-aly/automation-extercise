@@ -14,6 +14,10 @@ class Login:
     def signup_header(self):
         return self._signup_header
     
+    @property
+    def login_header(self):
+        return self._signup_header
+    
     def email_locator(self,method):
         return self.page.locator(self.EMAIL.format(method=method))
     
@@ -26,17 +30,14 @@ class Login:
     def error_message(self):
         return self.page.locator(self.ERROR)
 
-    def click_button(self,button):
-        button.click()
-        return Signup(self.page)
     
-    def login(self,button):
-        from src.pages.home.homePage import Home
-        button.click()
-        return Home(self.page)
+    # def login(self,button):
+    #     from src.pages.home.homePage import Home
+    #     button.click()
+    #     return Home(self.page)
     
-    def logout(self,button):
-        from src.pages.home.homePage import Home
-        button.click()
-        return Home(self.page)
+    # def logout(self,button):
+    #     from src.pages.home.homePage import Home
+    #     button.click()
+    #     return Home(self.page)
     

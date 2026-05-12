@@ -7,7 +7,7 @@ def xtest_product_card_hover(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
-    logout_button = home_p.get_logout_button
+    logout_button = home_p.get_button("Logout")
     expect(logout_button).to_be_visible()
 
     category_p = Category(page)
@@ -52,7 +52,7 @@ def xtest_product_card_view_product_button_navigation(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
-    logout_button = home_p.get_logout_button
+    logout_button = home_p.get_button("Logout")
     expect(logout_button).to_be_visible()
 
     category_p = Category(page)
@@ -107,7 +107,7 @@ def xtest_product_card_add_to_cart_button(use_saved_login):
     page = use_saved_login
 
     home_p = Home(page)
-    logout_button = home_p.get_logout_button
+    logout_button = home_p.get_button("Logout")
     expect(logout_button).to_be_visible()
 
     category_p = Category(page)

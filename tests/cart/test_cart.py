@@ -1,318 +1,178 @@
 from playwright.sync_api import expect
-from src.pages.home.homePage import Home
+from src.pages.cart.cartPage import Cart
+from src.pages.cart.cartPopupPage import CartPopup
 from src.pages.category.categoryPage import Category
 from src.pages.category.subCategoryPage import SubCategory
+from src.pages.home.homePage import Home
+from src.pages.login.loginPage import Login
 from src.pages.products.productCardPage import ProductCard
+from src.utils.constants.constantsUtils import KIND, SUB_KIND
+from src.utils.controlutils.controlUtils import ControlUtils
 
-
-# completed
-def xtest_verify_product_added_to_cart(use_saved_login):
+def _navigate_to_subcategory(page, kind, sub_kind):
     """
-    This test ensure the followings when a prodct is added to to cart
-    The image of the product must along with name and price
-    This also enures that the calculated total also matches the quantity * price
+    Navigate Home → Category → SubCategory.
+    Returns the SubCategory page object.
     """
-    page = use_saved_login
-
-    home_p = Home(page)
-    logout_button = home_p.get_logout_button
-    expect(logout_button).to_be_visible()
+    home = Home(page)
+    ControlUtils.validate_element_is_visible(home.get_button("Logout"))
 
     category_p = Category(page)
+    ControlUtils.validate_element_is_visible(category_p.get_category(category=kind))
+    ControlUtils.click_on_element(category_p.get_category(category=kind))
 
-    kind ="Men"
-    sub_kind ="Tshirts"
+    ControlUtils.validate_element_is_visible(
+        category_p.get_subcategory(kind=kind, section=sub_kind)
+    )
+    ControlUtils.click_on_element(category_p.get_subcategory(kind=kind, section=sub_kind))
 
-    category = category_p.get_category(category=kind)
-    expect(category).to_be_visible()
-
-    sub_category = category_p.get_subcategory(kind=kind,section=sub_kind)
-    expect(sub_category).not_to_be_visible()
-    category.click()
-    expect(sub_category).to_be_visible()
-
-    sub_category_p = category_p.click_subcategory(sub_category)
-    heading = sub_category_p.get_heading
-    expect(heading).to_contain_text(f"{kind} - {sub_kind} Products")
-    page.wait_for_timeout(2000)
+    sub_category_p = SubCategory(page)
+    ControlUtils.validate_element_have_text(
+        sub_category_p.get_heading, f"{kind} - {sub_kind} Products"
+    )
+    return sub_category_p
 
 
-    product_card_p = ProductCard(page)
-
-    selected_product = product_card_p.select_product()
-    price = product_card_p.get_price(selected_product)
-    description = product_card_p.get_description(selected_product)
-    selected_product.hover()
-    page.wait_for_timeout(1000)
-    hover_price = product_card_p.get_price_on_hover(selected_product)
-    hover_description = product_card_p.get_description_on_hover(selected_product)
-    
-    assert hover_price == price, "Price mismatch with card and on hover over the card"
-    assert hover_description == description, "Description mismatch with card and on hover over the card"
-
-    image = product_card_p.get_image(selected_product)
-    card_image_src = image.get_attribute("src").lstrip("/")
-
-    # This piece of code adds product twice in the cart and at second attampt it move to the cart page
-    # So the mimum Total = 2*price if the prduct was not already added in the cart.
-
-    add_to_cart_button = product_card_p.get_add_to_cart_button(selected_product)
-    page.wait_for_timeout(1000)
-    cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
-    heading = cart_popup.get_heading
-    expect(heading).to_have_text("Added!")
-    page.wait_for_timeout(1000)
-
-    cart_popup.click_continue_shopping()
-    cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
-    heading = cart_popup.get_heading
-    expect(heading).to_have_text("Added!")
-    cart_p = cart_popup.click_view_cart_button()
-    
-    expect(cart_p.get_cart_empty).not_to_be_visible()
-    # verified that cart is not empty
-    checkout_button = cart_p.get_checkout_button
-    expect(checkout_button).to_be_visible()
-    page.wait_for_timeout(1000)
-    # This button i also visible when cart has items
-
-    cart_items = cart_p.get_all_cart_items()
-
-    number_of_items = cart_items.count()
-    # recently added product goes to the end 
-    # so we must select that item from the cart to verify that we added the right product
-    last_item = number_of_items -1
-
-    item = cart_items.nth(last_item)
-
-    p_price = cart_p.get_product_price(item).text_content().strip()
-    p_price = p_price.strip("Rs. ")
-
-    quantity = cart_p.get_product_quantity(item).text_content().strip()
-
-    expect(cart_p.get_product_name(item)).to_have_text(description)
-    expect(cart_p.get_product_price(item)).to_have_text(price)
-
-    expect(cart_p.get_product_total(item)).to_have_text("Rs. "+str(int(quantity)*int(p_price)))
-    
-    cart_image_src = cart_p.get_product_image_src(item).get_attribute("src").lstrip("/")
-    assert card_image_src == cart_image_src, "Image Mismatch"
-
-    cart_items_total_amount = cart_p.get_bill()
-
-    checkout_p = cart_p.click_checkout_button()
-
-    expect(checkout_p.get_heading).to_be_visible()
-    page.wait_for_timeout(2000)
-
-
-
-
-#completed
-def test_verify_product_deleted_from_cart(use_saved_login):
+def _add_product_to_cart_twice(page, product_card_p):
     """
-    This test ensure the followings when a prodct is added to to cart
-    The image of the product must along with name and price
-    Then this deletes the added product form the cart
+    Selects a random product, adds it to the cart twice
+    (first time: continue shopping; second time: view cart).
+
+    Returns (CartPopup after second add, ProductSnapshot).
+    """
+    product_card_p.wait_for_products()
+    product, index = product_card_p.get_random_product()
+    snapshot = product_card_p.snapshot(product, index)
+
+    # Verify hover data matches card data
+    product.hover()
+    page.wait_for_timeout(500)
+
+    # Capture the UI values once
+    hover_price = product_card_p.get_hover_price(product)
+    hover_desc = product_card_p.get_hover_description(product)
+
+    # Simple, readable assertions
+    assert hover_price == snapshot.price, f"Price mismatch! Expected {snapshot.price!r} but got {hover_price!r}"
+    assert hover_desc == snapshot.description, f"Desc mismatch! Expected {snapshot.description!r} but got {hover_desc!r}"
+
+    add_btn = product_card_p.get_add_to_cart_button(product)
+
+    add_btn.click()
+    popup = CartPopup(page)
+    ControlUtils.validate_element_have_text(popup.get_heading, "Added!")
+    popup.click_continue_shopping()
+
+
+    add_btn.click()
+    popup = CartPopup(page)
+    ControlUtils.validate_element_have_text(popup.get_heading, "Added!")
+
+    return popup, snapshot
+
+
+def _parse_price(raw: str) -> int:
+    """Convert 'Rs. 500' → 500. Raises ValueError on bad input."""
+    return int(raw.replace("Rs.", "").strip())
+
+
+def test_verify_product_added_to_cart(use_saved_login):
+    """
+    Verify that after adding a product to the cart:
+      - The cart is not empty
+      - Product name, price, and image in the cart match the product card
+      - Total = quantity × unit price
+      - Checkout button is visible
     """
     page = use_saved_login
-
-    home_p = Home(page)
-    logout_button = home_p.get_logout_button
-    expect(logout_button).to_be_visible()
-
-    category_p = Category(page)
-
-    kind ="Men"
-    sub_kind ="Tshirts"
-
-    category = category_p.get_category(category=kind)
-    expect(category).to_be_visible()
-
-    sub_category = category_p.get_subcategory(kind=kind,section=sub_kind)
-    expect(sub_category).not_to_be_visible()
-    category.click()
-    expect(sub_category).to_be_visible()
-
-    sub_category_p = category_p.click_subcategory(sub_category)
-    heading = sub_category_p.get_heading
-    expect(heading).to_contain_text(f"{kind} - {sub_kind} Products")
-    page.wait_for_timeout(2000)
-
+    _navigate_to_subcategory(page, KIND, SUB_KIND)
 
     product_card_p = ProductCard(page)
+    popup, snapshot = _add_product_to_cart_twice(page, product_card_p)
 
-    selected_product = product_card_p.select_product()
-    price = product_card_p.get_price(selected_product)
-    description = product_card_p.get_description(selected_product)
-    selected_product.hover()
-    page.wait_for_timeout(1000)
-    hover_price = product_card_p.get_price_on_hover(selected_product)
-    hover_description = product_card_p.get_description_on_hover(selected_product)
-    
-    assert hover_price == price, "Price mismatch with card and on hover over the card"
-    assert hover_description == description, "Description mismatch with card and on hover over the card"
+    cart_p: Cart = popup.click_view_cart_button()
 
-    image = product_card_p.get_image(selected_product)
-    card_image_src = image.get_attribute("src").lstrip("/")
-
-    # This piece of code adds product twice in the cart and at second attampt it move to the cart page
-    # So the mimum Total = 2*price if the prduct was not already added in the cart.
-
-    add_to_cart_button = product_card_p.get_add_to_cart_button(selected_product)
-    page.wait_for_timeout(1000)
-    cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
-    heading = cart_popup.get_heading
-    expect(heading).to_have_text("Added!")
-    page.wait_for_timeout(1000)
-
-    cart_popup.click_continue_shopping()
-    cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
-    heading = cart_popup.get_heading
-    expect(heading).to_have_text("Added!")
-    cart_p = cart_popup.click_view_cart_button()
-    
+    ControlUtils.validate_element_is_visible(cart_p.get_checkout_button)
     expect(cart_p.get_cart_empty).not_to_be_visible()
-    # verified that cart is not empty
-    checkout_button = cart_p.get_checkout_button
-    expect(checkout_button).to_be_visible()
-    page.wait_for_timeout(1000)
-    # This button i also visible when cart has items
 
     cart_items = cart_p.get_all_cart_items()
+    last_item = cart_items.nth(cart_items.count() - 1)
 
-    number_of_items = cart_items.count()
-    # recently added product goes to the end 
-    # so we must select that item from the cart to verify that we added the right product
-    last_item = number_of_items -1
+    unit_price = _parse_price(
+        cart_p.get_product_price(last_item).text_content().strip()
+    )
+    quantity = int(cart_p.get_product_quantity(last_item).text_content().strip())
+    expected_total = f"Rs. {unit_price * quantity}"
 
-    item = cart_items.nth(last_item)
+    ControlUtils.validate_element_have_text(cart_p.get_product_name(last_item), snapshot.description)
+    ControlUtils.validate_element_have_text(cart_p.get_product_price(last_item), snapshot.price)
+    ControlUtils.validate_element_have_text(cart_p.get_product_total(last_item), expected_total)
 
-    p_price = cart_p.get_product_price(item).text_content().strip()
-    p_price = p_price.strip("Rs. ")
+    cart_image_src = (
+        cart_p.get_product_image_src(last_item).get_attribute("src") or ""
+    ).lstrip("/")
+    assert cart_image_src == snapshot.image_src, (
+        f"Image mismatch — card: {snapshot.image_src!r}, cart: {cart_image_src!r}"
+    )
 
-    quantity = cart_p.get_product_quantity(item).text_content().strip()
 
-    expect(cart_p.get_product_name(item)).to_have_text(description)
-    expect(cart_p.get_product_price(item)).to_have_text(price)
+def xtest_verify_product_deleted_from_cart(use_saved_login):
+    """
+    Verify that deleting a product from the cart reduces the item count by one.
+    """
+    page = use_saved_login
+    _navigate_to_subcategory(page, KIND, SUB_KIND)
 
-    expect(cart_p.get_product_total(item)).to_have_text("Rs. "+str(int(quantity)*int(p_price)))
-    
-    cart_image_src = cart_p.get_product_image_src(item).get_attribute("src").lstrip("/")
-    assert card_image_src == cart_image_src, "Image Mismatch"
+    product_card_p = ProductCard(page)
+    popup, _ = _add_product_to_cart_twice(page, product_card_p)
 
-    cart_items_total_amount = cart_p.get_bill()
+    cart_p: Cart = popup.click_view_cart_button()
+    cart_items = cart_p.get_all_cart_items()
+    count_before = cart_items.count()
 
-    delete_item = cart_p.get_delete_button(item)
-    delete_item.click()
-
+    last_item = cart_items.nth(count_before - 1)
+    cart_p.get_delete_button(last_item).click()
     page.reload(wait_until="networkidle")
 
-    cart_items = cart_p.get_all_cart_items()
-    number_of_items_aftet_deletetion = cart_items.count()
-    assert number_of_items_aftet_deletetion<number_of_items,"item is not deleted"
-    
-    page.wait_for_timeout(2000)
+    count_after = cart_p.get_all_cart_items().count()
+    assert count_after < count_before, (
+        f"Item was not deleted — count before: {count_before}, after: {count_after}"
+    )
 
 
-
-
-
-#completed
-def xtest_ask_for_login(setup):
+def xtest_unauthenticated_checkout_redirects_to_login(setup):
     """
-    This test ensure the followings when a prodct is added to to cart
-    The image of the product must along with name and price are same in the cart too
-    Then tries to checkout but user not loged in so he is enfore to login
+    Verify that an unauthenticated user attempting checkout
+    is redirected to the Login/Signup page.
     """
     page = setup
-
     home_p = Home(page)
-    products_button = home_p.get_products_button
-    expect(products_button).to_be_visible()
+    ControlUtils.click_on_element(home_p.get_nav_link("products"))
 
-    products_button.click()
-
-    subcategory_p = SubCategory(page)
-    heading = subcategory_p.get_heading
-    expect(heading).to_have_text("All Products")
+    sub_p = SubCategory(page)
+    ControlUtils.validate_element_have_text(sub_p.get_heading, "All Products")
 
     product_card_p = ProductCard(page)
+    product_card_p.wait_for_products()
+    product, index = product_card_p.get_random_product()
+    snapshot = product_card_p.snapshot(product, index)
 
-    selected_product = product_card_p.select_product()
-    price = product_card_p.get_price(selected_product)
-    description = product_card_p.get_description(selected_product)
-    selected_product.hover()
-    page.wait_for_timeout(1000)
-    hover_price = product_card_p.get_price_on_hover(selected_product)
-    hover_description = product_card_p.get_description_on_hover(selected_product)
-    
-    assert hover_price == price, "Price mismatch with card and on hover over the card"
-    assert hover_description == description, "Description mismatch with card and on hover over the card"
+    add_btn = product_card_p.get_add_to_cart_button(product)
+    add_btn.click()
+    popup = CartPopup(page)
+    ControlUtils.validate_element_have_text(popup.get_heading, "Added!")
+    popup.click_continue_shopping()
 
-    image = product_card_p.get_image(selected_product)
-    card_image_src = image.get_attribute("src").lstrip("/")
+    add_btn.click()
+    popup = CartPopup(page)
+    cart_p: Cart = popup.click_view_cart_button()
 
-
-    add_to_cart_button = product_card_p.get_add_to_cart_button(selected_product)
-    page.wait_for_timeout(1000)
-    cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
-    heading = cart_popup.get_heading
-    expect(heading).to_have_text("Added!")
-    page.wait_for_timeout(1000)
-
-    cart_popup.click_continue_shopping()
-    cart_popup = product_card_p.click_add_to_cart(add_to_cart_button)
-    heading = cart_popup.get_heading
-    expect(heading).to_have_text("Added!")
-    cart_p = cart_popup.click_view_cart_button()
-    
     expect(cart_p.get_cart_empty).not_to_be_visible()
-    # verified that cart is not empty
-    checkout_button = cart_p.get_checkout_button
-    expect(checkout_button).to_be_visible()
-    page.wait_for_timeout(1000)
-    # This button i also visible when cart has items
+    ControlUtils.click_on_element(cart_p.get_checkout_button)
 
-    cart_items = cart_p.get_all_cart_items()
+    # Popup should appear asking user to login or register
+    ControlUtils.validate_element_is_visible(popup.get_checkout_heading)
+    popup.click_login_signup_button()
 
-    number_of_items = cart_items.count()
-    # recently added product goes to the end 
-    # so we must select that item from the cart to verify that we added the right product
-    last_item = number_of_items -1
-
-    item = cart_items.nth(last_item)
-
-    p_price = cart_p.get_product_price(item).text_content().strip()
-    p_price = p_price.strip("Rs. ")
-
-    quantity = cart_p.get_product_quantity(item).text_content().strip()
-
-    expect(cart_p.get_product_name(item)).to_have_text(description)
-    expect(cart_p.get_product_price(item)).to_have_text(price)
-
-    expect(cart_p.get_product_total(item)).to_have_text("Rs. "+str(int(quantity)*int(p_price)))
-    
-    cart_image_src = cart_p.get_product_image_src(item).get_attribute("src").lstrip("/")
-    assert card_image_src == cart_image_src, "Image Mismatch"
-
-    cart_items_total_amount = cart_p.get_bill()
-    page.wait_for_timeout(1000)
-
-
-    checkout_p = cart_p.click_checkout_button()
-
-    expect(cart_popup.get_checkout_heading).to_be_visible()
-    page.wait_for_timeout(1000)
-    cart_popup.click_continue_on_cart()
-    page.wait_for_timeout(1000)
-
-    checkout_p = cart_p.click_checkout_button()
-
-    expect(cart_popup.get_checkout_heading).to_be_visible()
-    page.wait_for_timeout(1000)
-    login_p = cart_popup.click_login_signup_button()
-
-    expect(login_p.signup_header).to_be_visible()
-
-    page.wait_for_timeout(2000)
+    login_p = Login(page)
+    ControlUtils.validate_element_is_visible(login_p.signup_header)

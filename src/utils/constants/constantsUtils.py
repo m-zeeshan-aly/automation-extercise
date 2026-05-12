@@ -1,4 +1,12 @@
 # utils/constants.py
+EMAIL = "dummybaba@gmail.com"
+PASSWORD = "pakistan123"
+
+WRONG_EMAIL = "dummyba@gmail.com"
+WRONG_PASSWORD = "pakistan1"
+
+KIND ="Men"
+SUB_KIND ="Tshirts"
 
 # Countries
 COUNTRIES = [
