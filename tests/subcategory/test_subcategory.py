@@ -27,6 +27,8 @@ def xtest_click_subcategory_for_navigation(use_saved_login, kind, sub_kind):
     ControlUtils.validate_element_is_visible(category_p.get_subcategory(kind=kind,section=sub_kind))
     page = ControlUtils.click_on_element(category_p.get_subcategory(kind=kind,section=sub_kind))
     sub_category_p = SubCategory(page)
-    ControlUtils.validate_element_have_text(sub_category_p.get_heading,f"{kind} - {sub_kind} Products")
-    page.wait_for_timeout(2000)
+    # We expect the heading to match the selected hierarchy
+    expected_heading = f"{kind} - {sub_kind} Products"
+    ControlUtils.validate_element_have_text(sub_category_p.get_heading,expected_heading)
+    # page.wait_for_timeout(2000)
 

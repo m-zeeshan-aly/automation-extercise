@@ -1,5 +1,3 @@
-from src.pages.signup.signupPage import Signup
-# from src.pages.home.HomePage import Home
 class Login:
     EMAIL = "//input[@data-qa='{method}-email']"
     BUTTON = "//button[normalize-space()='{title}']"
@@ -29,15 +27,3 @@ class Login:
     
     def error_message(self):
         return self.page.locator(self.ERROR)
-
-    
-    # def login(self,button):
-    #     from src.pages.home.homePage import Home
-    #     button.click()
-    #     return Home(self.page)
-    
-    # def logout(self,button):
-    #     from src.pages.home.homePage import Home
-    #     button.click()
-    #     return Home(self.page)
-    

@@ -1,70 +1,89 @@
 from playwright.sync_api import expect
 from src.pages.home.homePage import Home
 from src.pages.category.categoryPage import Category
+from src.pages.category.subCategoryPage import SubCategory
 from src.pages.products.productCardPage import ProductCard
+from src.pages.products.productDetailPage import ProductDetail
+from src.utils.constants.constantsUtils import KIND, SUB_KIND
+from src.utils.controlutils.controlUtils import ControlUtils
 
-
-def xtest_verify_selected_product_details(use_saved_login):
-    page = use_saved_login
-
-    home_p = Home(page)
-    logout_button = home_p.get_button("Logout")
-    expect(logout_button).to_be_visible()
+def _navigate_to_subcategory(page, kind, sub_kind):
+    """
+    Navigate Home → Category → SubCategory.
+    Returns the SubCategory page object.
+    """
+    home = Home(page)
+    ControlUtils.validate_element_is_visible(home.get_button("Logout"))
 
     category_p = Category(page)
+    ControlUtils.validate_element_is_visible(category_p.get_category(category=kind))
+    ControlUtils.click_on_element(category_p.get_category(category=kind))
 
-    kind ="Men"
-    sub_kind ="Tshirts"
+    ControlUtils.validate_element_is_visible(
+        category_p.get_subcategory(kind=kind, section=sub_kind)
+    )
+    ControlUtils.click_on_element(category_p.get_subcategory(kind=kind, section=sub_kind))
 
-    category = category_p.get_category(category=kind)
-    expect(category).to_be_visible()
+    sub_category_p = SubCategory(page)
+    ControlUtils.validate_element_have_text(
+        sub_category_p.get_heading, f"{kind} - {sub_kind} Products"
+    )
+    return sub_category_p
 
-    sub_category = category_p.get_subcategory(kind=kind,section=sub_kind)
-    expect(sub_category).not_to_be_visible()
-    category.click()
-    expect(sub_category).to_be_visible()
+def xtest_verify_selected_product_details_match_card(use_saved_login):
+    """
+    Verify that the product details page correctly reflects the 
+    data (name, price, image) shown on the product card.
+    """
+    page = use_saved_login
+    
+    # 1. Navigation using centralized helper
+    _navigate_to_subcategory(page, KIND, SUB_KIND)
 
-    sub_category_p = category_p.click_subcategory(sub_category)
-    heading = sub_category_p.get_heading
-    expect(heading).to_contain_text(f"{kind} - {sub_kind} Products")
-    page.wait_for_timeout(2000)
-
-
+    # 2. Product Selection and Snapshot
     product_card_p = ProductCard(page)
-
-    selected_product = product_card_p.select_product()
-    price = product_card_p.get_price(selected_product)
-    description = product_card_p.get_description(selected_product)
-    selected_product.hover()
-    page.wait_for_timeout(1000)
-    hover_price = product_card_p.get_price_on_hover(selected_product)
-    hover_description = product_card_p.get_description_on_hover(selected_product)
+    product_card_p.wait_for_products()
     
-    assert hover_price == price, "Price mismatch with card and on hover over the card"
-    assert hover_description == description, "Description mismatch with card and on hover over the card"
-
-    image = product_card_p.get_image(selected_product)
-    card_image_src = image.get_attribute("src")
+    product, index = product_card_p.get_random_product()
     
-    view_product_button = product_card_p.get_view_product_button(selected_product)
-    page.wait_for_timeout(1000)
+    # Capture data using ControlUtils to ensure clean strings
+    description = ControlUtils.get_clean_text(product_card_p.description_locator(product))
+    price = ControlUtils.get_clean_text(product_card_p.price_locator(product))
+    image_src = ControlUtils.get_clean_attribute(product_card_p.image_locator(product), "src")
+    
+    # Creating snapshot for structured comparison
+    snapshot = product_card_p.snapshot(index, description, price, image_src)
 
-    product_detail_p = product_card_p.click_view_product(view_product_button)
+    # 3. Hover Validation (Internal consistency check)
+    product.hover()
+    page.wait_for_timeout(500)
+    
+    hover_price = ControlUtils.get_clean_text(product_card_p.hover_price_locator(product))
+    hover_desc = ControlUtils.get_clean_text(product_card_p.hover_description_locator(product))
+    
+    assert hover_price == snapshot.price, f"Hover price mismatch! Expected {snapshot.price}"
+    assert hover_desc == snapshot.description, f"Hover description mismatch! Expected {snapshot.description}"
 
+    # 4. Navigation to Product Details
+    view_product_button = product_card_p.get_view_product_button(product)
+    page = ControlUtils.click_on_element(view_product_button)
+    
+    product_detail_p = ProductDetail(page)
+
+    # 5. Detail Page Assertions
+    # Verify the "Product" tab is active/highlighted
     tab = product_detail_p.get_product_tab
-
     expect(tab).to_have_css("color", "rgb(255, 165, 0)")
 
-    product_description_locator = product_detail_p.get_description
-    product_price_locator = product_detail_p.get_product_price
-    product_image_locator = product_detail_p.get_product_image
+    # Validate Name and Price on details page
+    ControlUtils.validate_element_have_text(product_detail_p.get_description, snapshot.description)
+    ControlUtils.validate_element_have_text(product_detail_p.get_product_price, snapshot.price)
 
-    expect(product_description_locator).to_have_text(description)
-    expect(product_price_locator).to_have_text(price)
+    # Validate Image Source
+    detail_image_src = ControlUtils.get_clean_attribute(product_detail_p.get_product_image, "src")
+    assert snapshot.image_src == detail_image_src, (
+        f"Image mismatch! Card: {snapshot.image_src}, Details: {detail_image_src}"
+    )
 
-    detail_image_src = product_image_locator.get_attribute("src")
-
-    assert card_image_src == detail_image_src, "Image Mismatch"
-
+    # Optional stabilization wait for visual debugging
     page.wait_for_timeout(2000)
-

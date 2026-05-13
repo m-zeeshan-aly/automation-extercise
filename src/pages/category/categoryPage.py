@@ -1,4 +1,3 @@
-from src.pages.category.subCategoryPage import SubCategory
 class Category:
     CATEGORY = "//div[@id='accordian']//a[normalize-space()= '{category}']"
     SUB_CATEGORY = "//div[@id='{kind}']//a[normalize-space()='{section}']"
@@ -14,13 +13,3 @@ class Category:
     
     def get_subcategory(self,kind,section):
         return self.page.locator(self.SUB_CATEGORY.format(kind=kind,section=section))
-    
-    # def click_subcategory(self,sub_category):
-    #     sub_category.click()
-    #     return SubCategory(self.page)
-    
-    # def click_brand(self,brand):
-    #     brand.click()
-    #     return SubCategory(self.page)
-        
-            

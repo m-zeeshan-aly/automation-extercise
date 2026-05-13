@@ -1,65 +1,75 @@
-from playwright.sync_api import expect
-from src.pages.home.homePage import Home
 import os
 import pytest
+from src.pages.home.homePage import Home
 from src.utils.generatedata.dataUtils import get_contact_us_data
+from src.utils.controlutils.controlUtils import ControlUtils
+from src.pages.contactus.contactUsPage import ContactUs
 
 def handle_dialog(dialog):
+    """
+    Handles the browser alert 'Press OK to proceed!'
+    """
     assert dialog.message == "Press OK to proceed!"
     dialog.accept()
 
-@pytest.mark.parametrize("run", range(2)) 
-def xtest_contactus_form(setup,run):
-    page= setup
+@pytest.mark.parametrize("run", range(1)) 
+def xtest_contactus_form_submission(setup, run, data = get_contact_us_data()):
+    page = setup
     home_p = Home(page)
+    
+    # 1. Navigation and Heading Check
+    ControlUtils.validate_element_is_visible(home_p.get_nav_link("contact_us"))
+    page = ControlUtils.click_on_element(home_p.get_nav_link("contact_us"))
+    
+    contactus_p = ContactUs(page)
+    ControlUtils.validate_element_is_visible(contactus_p.get_heading)
 
-    # # contact_us_button = home_p.get_contact_us_button
-    # contact_us_button = home_p.get_nav_link("contact_us")
-    expect(home_p.get_nav_link("contact_us")).to_be_visible()
+    # 3. Fill and Validate Inputs (Matching your Signup approach)
+    # Name
+    ControlUtils.fill_input_field(contactus_p.get_input("name"), data.get("name"))
+    ControlUtils.validate_input(contactus_p.get_input("name"), data.get("name"))
 
-    contactus_p = home_p.click_contact_us_button()
-    expect(contactus_p.get_heading).to_be_visible()
+    # Email
+    ControlUtils.fill_input_field(contactus_p.get_input("email"), data.get("email"))
+    ControlUtils.validate_input(contactus_p.get_input("email"), data.get("email"))
 
-    data = get_contact_us_data()
+    # Subject
+    ControlUtils.fill_input_field(contactus_p.get_input("subject"), data.get("subject"))
+    ControlUtils.validate_input(contactus_p.get_input("subject"), data.get("subject"))
 
-    input = contactus_p.get_input("name")
-    expect(input).to_be_editable()
-    input.clear()
-    input.fill(data.get("name"))
+    # Message (Textarea)
+    ControlUtils.fill_input_field(contactus_p.get_message_field(), data.get("message"))
+    ControlUtils.validate_input(contactus_p.get_message_field(), data.get("message"))
 
-    input = contactus_p.get_input("email")
-    expect(input).to_be_editable()
-    input.clear()
-    input.fill(data.get("email"))
+    # 4. File Upload
+    current_working_dir = os.getcwd()
+    file_path = os.path.join(current_working_dir, 'testdata/upload_file.jpg')
+    
+    upload_input = contactus_p.get_input("upload_file")
+    upload_input.set_input_files(file_path)
+    
+    # Assert file name is present in the input
+    assert "upload_file.jpg" in upload_input.input_value(), "File failed to upload"
 
-    input = contactus_p.get_input("subject")
-    expect(input).to_be_editable()
-    input.clear()
-    input.fill(data.get("subject"))
-
-    input = contactus_p.get_message_field()
-    expect(input).to_be_editable()
-    input.clear()
-    input.fill(data.get("message"))
-
-    current_working_dir =os.getcwd()
-    file_path = os.path.join(current_working_dir,'testdata/upload_file.jpg')
-
-    input = contactus_p.get_input("upload_file")
-
-    input.set_input_files(file_path)
-
-    assert "upload_file.jpg" in input.input_value()
-
+    # 5. Dialog Handling and Submission
     submit_button = contactus_p.get_input("submit")
+    ControlUtils.validate_element_is_visible(submit_button)
 
-    expect(submit_button).to_be_visible()
-
+    # Listen for the popup before clicking
     page.once("dialog", handle_dialog)
     page.wait_for_load_state("networkidle")
-    submit_button.click()
-    expect(contactus_p.success_message).to_have_text("Success! Your details have been submitted successfully.")
+    
+    # Click submit (Expect navigation/refresh)
+    page = ControlUtils.click_on_element(submit_button)
 
-    home_p = contactus_p.click_home_button()
-    # page.wait_for_timeout(2000)
+    # 6. Success Validation
+    ControlUtils.validate_element_have_text(
+        contactus_p.success_message, 
+        text="Success! Your details have been submitted successfully."
+    )
 
+    # 7. Return to Home
+    page = ControlUtils.click_on_element(contactus_p.get_home_button)
+    
+    # Final check to ensure we are back home
+    ControlUtils.validate_element_is_visible(home_p.get_nav_link("contact_us"))

@@ -2,7 +2,7 @@ import random
 import string
 import uuid
 from datetime import datetime
-from src.utils.constants.constantsUtils import COUNTRIES, MONTHS, TITLES, CHECKBOXS, CONTACT_SUBJECTS, CONTACT_MESSAGES
+from src.utils.constants.constantsUtils import COUNTRIES, MONTHS, TITLES, CHECKBOXS
 
 class GenerateData:
     def __init__(self):

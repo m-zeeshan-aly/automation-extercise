@@ -7,7 +7,6 @@ class ContactUs:
         self._home_button = page.locator("//div[@id='form-section']/a")
         self._success_message = page.locator("//div[@class='status alert alert-success']")
         
-
     @property
     def get_heading(self):
         return self._heading
@@ -16,11 +15,9 @@ class ContactUs:
     def success_message(self):
         return self._success_message
     
-    def click_home_button(self):
-        self._home_button.click()
-        from src.pages.home.homePage import Home
-        return Home(self.page)
-    
+    @property
+    def get_home_button(self):
+        return self._home_button
     
     def get_message_field(self):
         return self._message_text

@@ -1,5 +1,3 @@
-from src.pages.cart.cartPage import Cart
-from src.pages.login.loginPage import Login
 class CartPopup:
     def __init__(self,page):
         self.page = page
@@ -19,18 +17,18 @@ class CartPopup:
     def get_checkout_heading(self):
         return self._checkout_heading
     
-    def click_continue_shopping(self):
-        self._continue_button.click()
-        return self
+    @property
+    def get_continue_shopping_button(self):
+        return self._continue_button
     
-    def click_continue_on_cart(self):
-        self._continue_on_cart_button.click()
-        return self
+    @property
+    def get_view_cart_button(self):
+        return self._cart_button
     
-    def click_view_cart_button(self):
-        self._cart_button.click()
-        return Cart(self.page)
+    @property
+    def get_login_signup_button(self):
+        return self._login_signup_button
     
-    def click_login_signup_button(self):
-        self._login_signup_button.click()
-        return Login(self.page)
+    @property
+    def get_continue_on_cart_button(self):
+        return self._continue_on_cart_button

@@ -1,4 +1,3 @@
-from src.pages.payment.paymentPage import Payment
 class Checkout:
     def __init__(self,page):
         self.page = page
@@ -42,10 +41,6 @@ class Checkout:
     
     def get_text_area(self):
         return self._text_area
-    
-    def click_place_order_button(self):
-        self._place_order_button.click()
-        return Payment(self.page)
     
     def get_all_checkout_items(self):
         return self._checkout_table.locator("//tbody/tr")

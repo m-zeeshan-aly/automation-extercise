@@ -115,3 +115,37 @@ BRANDS = [
     "Kookie Kids",
     "Biba"
 ]
+
+
+# Constants for Checkout/Place Order Comments
+ORDER_COMMENTS = [
+    "Please do not bring the order after 5 PM.",
+    
+    "If I am not home, please leave the package with the neighbor.",
+    
+    "The doorbell is broken, please call me upon arrival.",
+    
+    "Please leave the parcel at the front porch behind the flower pot.",
+    
+    "Gate code is #1234. Please leave it at the apartment lobby.",
+    
+    "Handle with care, the items are fragile.",
+    
+    "Please ensure the package is not left in direct sunlight.",
+    
+    "Call me 10 minutes before reaching the delivery address.",
+    
+    "Please deliver during office hours (9 AM to 5 PM).",
+    
+    "Beware of the dog; please stay outside the main gate.",
+    
+    "This is a gift, please do not include the price invoice inside.",
+    
+    "No plastic bags, please. Eco-friendly packaging if possible.",
+    
+    "Please knock loudly as I might be in the backyard.",
+    
+    "If the gate is locked, please throw the package over the fence.",
+    
+    "Please double-check the house number; GPS often leads to the back alley."
+]

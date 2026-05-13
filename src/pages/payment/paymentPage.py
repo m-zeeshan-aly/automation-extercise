@@ -1,4 +1,3 @@
-from src.pages.ordersuccess.orderSuccessPage import OrderSuccess
 class Payment:
     INPUT = "//input[@name='{name}']"
     def __init__(self,page):
@@ -16,6 +15,3 @@ class Payment:
     def get_input_field(self, name):
         return self.page.locator(self.INPUT.format(name=name))
     
-    def click_submit_button(self):
-        self._submit_button.click()
-        return OrderSuccess(self.page)

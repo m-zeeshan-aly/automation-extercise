@@ -1,4 +1,3 @@
-from playwright.sync_api import expect
 from src.pages.home.homePage import Home
 from src.utils.controlutils.controlUtils import ControlUtils
 from src.pages.login.loginPage import Login
@@ -71,8 +70,8 @@ def xtest_login_with_invalid_credentials(setup):
     login_p = Login(page)
     ControlUtils.validate_element_is_visible(login_p.login_header)
 
-    ControlUtils.fill_input_field(login_p.email_locator("login"),WRONG_PASSWORD)
-    ControlUtils.validate_input(login_p.email_locator("login"),WRONG_PASSWORD)
+    ControlUtils.fill_input_field(login_p.email_locator("login"),WRONG_EMAIL)
+    ControlUtils.validate_input(login_p.email_locator("login"),WRONG_EMAIL)
 
     ControlUtils.fill_input_field( login_p.get_input_field("Password"),WRONG_PASSWORD)
     ControlUtils.validate_input( login_p.get_input_field("Password"),WRONG_PASSWORD)

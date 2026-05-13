@@ -66,33 +66,31 @@ class ProductCard:
         index = random.randint(0, count - 1)
         return self.all_products.nth(index), index
 
-    # ── Data extraction ───────────────────────────────────────────────────────
+    def price_locator(self, product):
+        return product.locator(self._SIMPLE_PRICE)
 
-    def get_price(self, product):
-        return product.locator(self._SIMPLE_PRICE).text_content().strip()
+    def description_locator(self, product):
+        return product.locator(self._SIMPLE_DESCRIPTION)
 
-    def get_description(self, product):
-        return product.locator(self._SIMPLE_DESCRIPTION).text_content().strip()
+    def image_locator(self, product):
+        return product.locator(self._SIMPLE_IMAGE)
 
-    def get_image_src(self, product):
-        return product.locator(self._SIMPLE_IMAGE).get_attribute("src", timeout=3000) or ""
+    def hover_price_locator(self, product):
+        return product.locator(self._HOVER_PRICE)
 
-    def get_hover_price(self, product):
-        return product.locator(self._HOVER_PRICE).text_content().strip()
+    def hover_description_locator(self, product):
+        return product.locator(self._HOVER_DESCRIPTION)
 
-    def get_hover_description(self, product):
-        return product.locator(self._HOVER_DESCRIPTION).text_content().strip()
-
-    def snapshot(self, product, index) -> ProductSnapshot:
+    def snapshot(self, index, description, price, image_src) -> ProductSnapshot:
         """
         Capture a full data snapshot of a card before any interaction.
         Use this to preserve values before hover/click changes the DOM.
         """
         return ProductSnapshot(
             index=index,
-            description=self.get_description(product),
-            price=self.get_price(product),
-            image_src=self.get_image_src(product).lstrip("/"),
+            description=description,
+            price=price,
+            image_src=image_src,
         )
 
     # ── Locators for actions (tests call .click() themselves) ─────────────────

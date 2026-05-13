@@ -1,54 +1,32 @@
-from playwright.sync_api import expect
 from src.pages.home.homePage import Home
 from src.pages.category.categoryPage import Category
 from src.utils.constants.constantsUtils import CATEGORIES, BRANDS
-import pytest 
+from src.utils.controlutils.controlUtils import ControlUtils
+from src.pages.category.subCategoryPage import SubCategory
+import pytest
 
 @pytest.mark.parametrize("kind", CATEGORIES.keys()) 
 def xtest_click_category(use_saved_login,kind):
     page = use_saved_login
-
-    home_p = Home(page)
-    logout_button = home_p.get_button("Logout")
-    expect(logout_button).to_be_visible()
-
+    home = Home(page)
+    ControlUtils.validate_element_is_visible(home.get_button("Logout"))
     category_p = Category(page)
+    ControlUtils.validate_element_is_visible(category_p.get_category(category=kind))
+    page = ControlUtils.click_on_element(category_p.get_category(category=kind))
 
-    category = category_p.get_category(category=kind)
-    expect(category).to_be_visible()
-
-    sub_category = category_p.get_subcategory(kind=kind,section=CATEGORIES[kind][0])
-    expect(sub_category).not_to_be_visible()
-    category.click()
-    expect(sub_category).to_be_visible()
-    
+    ControlUtils.validate_element_is_visible(category_p.get_subcategory(kind=kind,section=CATEGORIES[kind][0]))
     page.wait_for_timeout(1000)
-
-
 
 
 @pytest.mark.parametrize("brand", BRANDS) 
 def xtest_click_brand(use_saved_login,brand):
     page = use_saved_login
-
-    home_p = Home(page)
-    logout_button = home_p.get_button("Logout")
-    expect(logout_button).to_be_visible()
-
+    home = Home(page)
+    ControlUtils.validate_element_is_visible(home.get_button("Logout"))
     category_p = Category(page)
 
-    brand_loc = category_p.get_brand(brand)
-    expect(brand_loc).to_be_visible()
-
-    expect(brand_loc).to_contain_text(brand)
-    page.wait_for_timeout(1000)
-
-    sub_category = category_p.click_brand(brand_loc)
-    page.wait_for_timeout(2000)
-
-    heading = sub_category.get_heading
-
-    expect(heading).to_contain_text(brand)
-
-    
+    ControlUtils.validate_element_is_visible(category_p.get_brand(brand))
+    page = ControlUtils.click_on_element(category_p.get_brand(brand))
+    sub_category = SubCategory(page)
+    ControlUtils.validate_element_contain_text(sub_category.get_heading,brand)
     page.wait_for_timeout(1000)

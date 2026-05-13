@@ -1,4 +1,3 @@
-from src.pages.account.accountCreatedPage import AccountCreated
 class Signup:
     TITLE_RADIO_INPUT = "//input[@type='radio' and @value='{title}']"
     INPUT_FIELD = "//input[@id='{name}']"
@@ -6,7 +5,6 @@ class Signup:
     CHECKBOX = "//div[@class='checkbox'][.//label[normalize-space()='{text}']]//input"
 
     def __init__(self,page):
-        
         self.page = page
         self._signup_header = page.locator("//div[@class='login-form']/h2/b[text()='Enter Account Information']")
         self._signup_button = page.locator("//button[normalize-space()='Create Account']")

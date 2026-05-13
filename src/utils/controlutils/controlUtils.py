@@ -27,6 +27,7 @@ class ControlUtils:
     def check_radio_and_checkbox_button(locator):
         locator.check()
         return locator
+    
     @staticmethod
     def validate_element_is_checked(locator):
         expect(locator).to_be_checked()
@@ -42,6 +43,22 @@ class ControlUtils:
     @staticmethod
     def validate_element_have_text(locator,text):
         expect(locator).to_have_text(text)
+
+    @staticmethod
+    def validate_element_contain_text(locator,text):
+        expect(locator).to_contain_text(text)
+
+    @staticmethod
+    def get_clean_text(locator):
+        """Extracts text content and applies standard professional cleaning."""
+        text = locator.text_content()
+        return text.strip() if text else ""
+
+    @staticmethod
+    def get_clean_attribute(locator, attribute):
+        """Extracts an attribute and ensures it is a clean string."""
+        attr = locator.get_attribute(attribute)
+        return attr.strip() if attr else ""
 
     
     

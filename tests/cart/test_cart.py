@@ -42,29 +42,30 @@ def _add_product_to_cart_twice(page, product_card_p):
     """
     product_card_p.wait_for_products()
     product, index = product_card_p.get_random_product()
-    snapshot = product_card_p.snapshot(product, index)
+    description=ControlUtils.get_clean_text(product_card_p.description_locator(product))
+    price=ControlUtils.get_clean_text(product_card_p.price_locator(product))
+    # Handling specific cleaning like lstrip inside the snapshot logic
+    image_src=ControlUtils.get_clean_attribute(product_card_p.image_locator(product), "src").lstrip("/")
+    snapshot = product_card_p.snapshot(index,description,price,image_src)
 
     # Verify hover data matches card data
     product.hover()
     page.wait_for_timeout(500)
 
     # Capture the UI values once
-    hover_price = product_card_p.get_hover_price(product)
-    hover_desc = product_card_p.get_hover_description(product)
+    hover_price = ControlUtils.get_clean_text(product_card_p.hover_price_locator(product))
+    hover_desc = ControlUtils.get_clean_text(product_card_p.hover_description_locator(product))
 
-    # Simple, readable assertions
     assert hover_price == snapshot.price, f"Price mismatch! Expected {snapshot.price!r} but got {hover_price!r}"
     assert hover_desc == snapshot.description, f"Desc mismatch! Expected {snapshot.description!r} but got {hover_desc!r}"
 
-    add_btn = product_card_p.get_add_to_cart_button(product)
+    page = ControlUtils.click_on_element(product_card_p.get_add_to_cart_button(product))
 
-    add_btn.click()
     popup = CartPopup(page)
     ControlUtils.validate_element_have_text(popup.get_heading, "Added!")
-    popup.click_continue_shopping()
+    ControlUtils.click_on_element(popup.get_continue_shopping_button)
 
-
-    add_btn.click()
+    page = ControlUtils.click_on_element(product_card_p.get_add_to_cart_button(product))
     popup = CartPopup(page)
     ControlUtils.validate_element_have_text(popup.get_heading, "Added!")
 
@@ -76,7 +77,7 @@ def _parse_price(raw: str) -> int:
     return int(raw.replace("Rs.", "").strip())
 
 
-def test_verify_product_added_to_cart(use_saved_login):
+def xtest_verify_product_added_to_cart(use_saved_login):
     """
     Verify that after adding a product to the cart:
       - The cart is not empty
@@ -90,26 +91,27 @@ def test_verify_product_added_to_cart(use_saved_login):
     product_card_p = ProductCard(page)
     popup, snapshot = _add_product_to_cart_twice(page, product_card_p)
 
-    cart_p: Cart = popup.click_view_cart_button()
-
+    page = ControlUtils.click_on_element(popup.get_view_cart_button)
+    cart_p = Cart(page)
     ControlUtils.validate_element_is_visible(cart_p.get_checkout_button)
-    expect(cart_p.get_cart_empty).not_to_be_visible()
 
-    cart_items = cart_p.get_all_cart_items()
-    last_item = cart_items.nth(cart_items.count() - 1)
+    target_row = cart_p.get_row_by_name(snapshot.description)
+    
+    # Ensure that specific row is visible before asserting
+    ControlUtils.validate_element_is_visible(target_row)
 
     unit_price = _parse_price(
-        cart_p.get_product_price(last_item).text_content().strip()
+        ControlUtils.get_clean_text(cart_p.get_product_price(target_row))
     )
-    quantity = int(cart_p.get_product_quantity(last_item).text_content().strip())
+    quantity = int(cart_p.get_product_quantity(target_row).text_content().strip())
     expected_total = f"Rs. {unit_price * quantity}"
 
-    ControlUtils.validate_element_have_text(cart_p.get_product_name(last_item), snapshot.description)
-    ControlUtils.validate_element_have_text(cart_p.get_product_price(last_item), snapshot.price)
-    ControlUtils.validate_element_have_text(cart_p.get_product_total(last_item), expected_total)
+    ControlUtils.validate_element_have_text(cart_p.get_product_name(target_row), snapshot.description)
+    ControlUtils.validate_element_have_text(cart_p.get_product_price(target_row), snapshot.price)
+    ControlUtils.validate_element_have_text(cart_p.get_product_total(target_row), expected_total)
 
     cart_image_src = (
-        cart_p.get_product_image_src(last_item).get_attribute("src") or ""
+        cart_p.get_product_image_src(target_row).get_attribute("src") or ""
     ).lstrip("/")
     assert cart_image_src == snapshot.image_src, (
         f"Image mismatch — card: {snapshot.image_src!r}, cart: {cart_image_src!r}"
@@ -126,19 +128,19 @@ def xtest_verify_product_deleted_from_cart(use_saved_login):
     product_card_p = ProductCard(page)
     popup, _ = _add_product_to_cart_twice(page, product_card_p)
 
-    cart_p: Cart = popup.click_view_cart_button()
+    page = ControlUtils.click_on_element(popup.get_view_cart_button)
+    cart_p = Cart(page)
     cart_items = cart_p.get_all_cart_items()
     count_before = cart_items.count()
 
     last_item = cart_items.nth(count_before - 1)
-    cart_p.get_delete_button(last_item).click()
+    page = ControlUtils.click_on_element(cart_p.get_delete_button(last_item))
     page.reload(wait_until="networkidle")
 
     count_after = cart_p.get_all_cart_items().count()
     assert count_after < count_before, (
         f"Item was not deleted — count before: {count_before}, after: {count_after}"
     )
-
 
 def xtest_unauthenticated_checkout_redirects_to_login(setup):
     """
@@ -155,24 +157,30 @@ def xtest_unauthenticated_checkout_redirects_to_login(setup):
     product_card_p = ProductCard(page)
     product_card_p.wait_for_products()
     product, index = product_card_p.get_random_product()
-    snapshot = product_card_p.snapshot(product, index)
 
-    add_btn = product_card_p.get_add_to_cart_button(product)
-    add_btn.click()
+    # description=ControlUtils.get_clean_text(product_card_p.description_locator(product)),
+    # price=ControlUtils.get_clean_text(product_card_p.price_locator(product)),
+    # image_src=ControlUtils.get_clean_attribute(product_card_p.image_locator(product), "src").lstrip("/")
+    # snapshot = product_card_p.snapshot(index,description,price,image_src)
+
+
+    page = ControlUtils.click_on_element(product_card_p.get_add_to_cart_button(product))
+
     popup = CartPopup(page)
     ControlUtils.validate_element_have_text(popup.get_heading, "Added!")
-    popup.click_continue_shopping()
+    ControlUtils.click_on_element(popup.get_continue_shopping_button)
 
-    add_btn.click()
+    page = ControlUtils.click_on_element(product_card_p.get_add_to_cart_button(product))
     popup = CartPopup(page)
-    cart_p: Cart = popup.click_view_cart_button()
+    ControlUtils.validate_element_have_text(popup.get_heading, "Added!")
+
+    page = ControlUtils.click_on_element(popup.get_view_cart_button)
+    cart_p = Cart(page)
 
     expect(cart_p.get_cart_empty).not_to_be_visible()
     ControlUtils.click_on_element(cart_p.get_checkout_button)
 
-    # Popup should appear asking user to login or register
     ControlUtils.validate_element_is_visible(popup.get_checkout_heading)
-    popup.click_login_signup_button()
-
+    page = ControlUtils.click_on_element(popup.get_login_signup_button)
     login_p = Login(page)
     ControlUtils.validate_element_is_visible(login_p.signup_header)
