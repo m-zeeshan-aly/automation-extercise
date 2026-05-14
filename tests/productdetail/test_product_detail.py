@@ -30,7 +30,7 @@ def _navigate_to_subcategory(page, kind, sub_kind):
     )
     return sub_category_p
 
-def xtest_verify_selected_product_details_match_card(use_saved_login):
+def test_verify_selected_product_details_match_card(use_saved_login):
     """
     Verify that the product details page correctly reflects the 
     data (name, price, image) shown on the product card.

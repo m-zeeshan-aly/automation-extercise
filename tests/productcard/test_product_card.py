@@ -33,7 +33,7 @@ def _navigate_to_subcategory(page, kind, sub_kind):
     return sub_category_p
 
 
-def xtest_product_card_hover_validation(use_saved_login):
+def test_product_card_hover_validation(use_saved_login):
     """
     Verify that hovering over a product card displays correct 
     price and description matching the static card data.
@@ -66,7 +66,7 @@ def xtest_product_card_hover_validation(use_saved_login):
         page.wait_for_timeout(2000)
 
 
-def xtest_product_card_view_product_navigation(use_saved_login):
+def test_product_card_view_product_navigation(use_saved_login):
     """
     Verify that clicking 'View Product' navigates to the details page
     and the 'Product' tab is correctly highlighted.
@@ -91,7 +91,7 @@ def xtest_product_card_view_product_navigation(use_saved_login):
     page.wait_for_timeout(2000)
 
 
-def xtest_product_card_add_to_cart_and_popup_flow(use_saved_login):
+def test_product_card_add_to_cart_and_popup_flow(use_saved_login):
     """
     Verify the full flow of adding an item, continuing shopping, 
     re-adding, and navigating to the cart.

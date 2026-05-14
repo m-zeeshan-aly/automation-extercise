@@ -13,7 +13,7 @@ def handle_dialog(dialog):
     dialog.accept()
 
 @pytest.mark.parametrize("run", range(1)) 
-def xtest_contactus_form_submission(setup, run, data = get_contact_us_data()):
+def test_contactus_form_submission(setup, run, data = get_contact_us_data()):
     page = setup
     home_p = Home(page)
     

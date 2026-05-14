@@ -3,7 +3,7 @@ from src.utils.controlutils.controlUtils import ControlUtils
 from src.pages.login.loginPage import Login
 from src.utils.constants.constantsUtils import WRONG_PASSWORD,WRONG_EMAIL, PASSWORD, EMAIL
 
-def xtest_login_navigation(setup):
+def test_login_navigation(setup):
     page = setup
     home = Home(page)
     page = ControlUtils.click_on_element(home.get_button('Signup / Login'))
@@ -11,7 +11,7 @@ def xtest_login_navigation(setup):
     ControlUtils.validate_element_is_visible(login_p.login_header)
 
 
-def xtest_login_with_valid_credentials(setup):
+def test_login_with_valid_credentials(setup):
     page = setup
     home = Home(page)
     page = ControlUtils.click_on_element(home.get_button('Signup / Login'))
@@ -35,7 +35,7 @@ def xtest_login_with_valid_credentials(setup):
     ControlUtils.validate_element_is_visible(home.get_button("Logout"))
 
 
-def xtest_login_and_logout(setup):
+def test_login_and_logout(setup):
     page = setup
     home = Home(page)
     page = ControlUtils.click_on_element(home.get_button('Signup / Login'))
@@ -63,7 +63,7 @@ def xtest_login_and_logout(setup):
     ControlUtils.validate_element_is_visible(home.get_button('Signup / Login'))
 
 
-def xtest_login_with_invalid_credentials(setup):
+def test_login_with_invalid_credentials(setup):
     page = setup
     home = Home(page)
     page = ControlUtils.click_on_element(home.get_button('Signup / Login'))

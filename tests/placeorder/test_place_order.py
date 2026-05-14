@@ -107,7 +107,7 @@ def _fill_payment_details(payment_p):
 # --- Tests ---
 
 @pytest.mark.parametrize("run", range(1))
-def xtest_place_order_and_clicks_continue_button(use_saved_login, run):
+def test_place_order_and_clicks_continue_button(use_saved_login, run):
     page = use_saved_login
     checkout_p, cart_total = _prepare_order_until_checkout(page)
 

@@ -77,7 +77,7 @@ def _parse_price(raw: str) -> int:
     return int(raw.replace("Rs.", "").strip())
 
 
-def xtest_verify_product_added_to_cart(use_saved_login):
+def test_verify_product_added_to_cart(use_saved_login):
     """
     Verify that after adding a product to the cart:
       - The cart is not empty
@@ -118,7 +118,7 @@ def xtest_verify_product_added_to_cart(use_saved_login):
     )
 
 
-def xtest_verify_product_deleted_from_cart(use_saved_login):
+def test_verify_product_deleted_from_cart(use_saved_login):
     """
     Verify that deleting a product from the cart reduces the item count by one.
     """
@@ -142,7 +142,7 @@ def xtest_verify_product_deleted_from_cart(use_saved_login):
         f"Item was not deleted — count before: {count_before}, after: {count_after}"
     )
 
-def xtest_unauthenticated_checkout_redirects_to_login(setup):
+def test_unauthenticated_checkout_redirects_to_login(setup):
     """
     Verify that an unauthenticated user attempting checkout
     is redirected to the Login/Signup page.

@@ -8,7 +8,7 @@ from src.pages.account.accountCreatedPage import AccountCreated
 import pytest 
 
 @pytest.mark.parametrize("run", range(1))  # runs 1 time increase number to run multiple time
-def xtest_signup_form(setup,run, data = signup_data()):
+def test_signup_form(setup,run, data = signup_data()):
     page = setup
     home = Home(page)
     page = ControlUtils.click_on_element(home.get_button('Signup / Login'))

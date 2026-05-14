@@ -6,7 +6,7 @@ from src.pages.category.subCategoryPage import SubCategory
 import pytest
 
 @pytest.mark.parametrize("kind", CATEGORIES.keys()) 
-def xtest_click_category(use_saved_login,kind):
+def test_click_category(use_saved_login,kind):
     page = use_saved_login
     home = Home(page)
     ControlUtils.validate_element_is_visible(home.get_button("Logout"))
@@ -19,7 +19,7 @@ def xtest_click_category(use_saved_login,kind):
 
 
 @pytest.mark.parametrize("brand", BRANDS) 
-def xtest_click_brand(use_saved_login,brand):
+def test_click_brand(use_saved_login,brand):
     page = use_saved_login
     home = Home(page)
     ControlUtils.validate_element_is_visible(home.get_button("Logout"))

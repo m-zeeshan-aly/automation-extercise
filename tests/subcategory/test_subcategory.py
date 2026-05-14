@@ -14,7 +14,7 @@ def get_data():
     return result
 
 @pytest.mark.parametrize("kind, sub_kind",get_data()) 
-def xtest_click_subcategory_for_navigation(use_saved_login, kind, sub_kind):
+def test_click_subcategory_for_navigation(use_saved_login, kind, sub_kind):
     page = use_saved_login
     home = Home(page)
     ControlUtils.validate_element_is_visible(home.get_button("Logout"))
